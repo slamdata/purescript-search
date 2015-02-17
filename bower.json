@@ -1,6 +1,6 @@
 {
   "name": "purescript-search",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "homepage": "https://github.com/slamdata/purescript-search",
   "authors": [
     "Maxim Zimaliev <zimaliev@yandex.ru>"
@@ -16,9 +16,10 @@
   ],
   "dependencies": {
     "purescript-mocha": "~0.0.3",
-    "purescript-parsing": "~0.3.0",
-    "purescript-chai": "https://github.com/cryogenian/purescript-chai.git#master",
     "purescript-strings": "~0.4.3",
-    "purescript-foldable-traversable": "~0.3.0"
+    "purescript-foldable-traversable": "~0.3.0",
+    "purescript-exceptions": "~0.2.2",
+    "purescript-parsing": "~0.3.1",
+    "purescript-strongcheck": "~0.8.0"
   }
 }

@@ -1,9 +1,14 @@
-module Text.SlamSearch.Parser.Tokens where
+module Text.SlamSearch.Parser.Tokens (
+  tokens,
+  Token(..),
+  isText,
+  keyChars
+  ) where
 
 import Text.Parsing.Parser
-import Text.Parsing.Parser.Combinators
+import Text.Parsing.Parser.Combinators 
 import Text.Parsing.Parser.String
-import Text.SlamSearch.Parser.Utils
+
 import Control.Apply
 import Control.Alt
 import Control.Alternative 
@@ -37,15 +42,16 @@ keyChars = [
   "\r",
   "\n",
   "\"",
-  ":"
+  ":",
+  ""
   ]
 
 rawString :: Parser String String
 rawString = do
   cs <- many $ noneOf keyChars
-  if length cs == 0 then
-    fail "incorrect raw string"
-    else return (fold cs)
+  case cs of
+    [] -> fail "incorrect raw string"
+    cs -> return (fold cs)
     
 
 slashed :: Parser String String
@@ -62,15 +68,12 @@ quotedString :: Parser String String
 quotedString = do
   between (string "\"") (string "\"") $ do
     cs <- many quotedSymbol
-    if length cs == 0 then
-      fail "incorrect quoted string"
-      else return $ "\"" <> (fold cs) <> "\""
-
-
-
+    case cs of
+      [] -> fail "incorrect quoted string"
+      cs -> return $ "\"" <> (fold cs) <> "\""
 
 data Token =
-Text String
+  Text String
   | Star
   | Range
   | QMark
@@ -131,61 +134,62 @@ isText (Text _) = true
 isText _ = false
 
 raw :: Parser String Token
-raw = Text <$> rawString <* skipSpaces
+raw = Text <$> rawString 
 
 quoted :: Parser String Token
-quoted = Text <$> quotedString <* skipSpaces
+quoted = Text <$> quotedString 
 
 star :: Parser String Token
-star = pure Star <* string "*" <* skipSpaces
+star = pure Star <* string "*" 
 
 range :: Parser String Token
-range = pure Range <* string ".." <* skipSpaces
+range = pure Range <* string ".." 
 
 qmark :: Parser String Token
-qmark = pure QMark <* string "?" <* skipSpaces
+qmark = pure QMark <* string "?"
 
 hash :: Parser String Token
-hash = pure Hash <* string "#" <* skipSpaces
+hash = pure Hash <* string "#"
 
 plus :: Parser String Token
-plus = pure Plus <* string "+" <* skipSpaces
+plus = pure Plus <* string "+"
 
 minus :: Parser String Token
-minus = pure Minus <* string "-" <* skipSpaces
+minus = pure Minus <* string "-"
 
 at :: Parser String Token
-at = pure At <* string "@" <* skipSpaces
+at = pure At <* string "@" 
 
 eq :: Parser String Token
-eq = pure Eq <* string "=" <* skipSpaces
+eq = pure Eq <* string "=" 
 
 lt :: Parser String Token
-lt = pure Lt <* string "<" <* skipSpaces
+lt = pure Lt <* string "<" 
 
 gt :: Parser String Token
-gt = pure Gt <* string ">" <* skipSpaces
+gt = pure Gt <* string ">" 
 
 lte :: Parser String Token
-lte = pure LtE <* string "<=" <* skipSpaces
+lte = pure LtE <* string "<=" 
 
 gte :: Parser String Token
-gte = pure GtE <* string ">=" <* skipSpaces
+gte = pure GtE <* string ">=" 
 
 ne :: Parser String Token
-ne = pure Ne <* (string "!=" <|> string "<>") <* skipSpaces
+ne = pure Ne <* (string "!=" <|> string "<>") 
 
 tilde :: Parser String Token
-tilde = pure Tilde <* string "~" <* skipSpaces
+tilde = pure Tilde <* string "~" 
 
 colon :: Parser String Token
-colon = pure Colon <* string ":" <* skipSpaces
+colon = pure Colon <* string ":"
+
 
 tokenize :: Parser String [Token]
-tokenize = many do
-  colon <|> tilde <|> ne <|> gte <|> lte <|>
-  gt <|> lt <|> eq <|> at <|> minus <|> plus <|> hash <|>
-  qmark <|> range <|> star <|> quoted <|> raw
+tokenize = many $ choice [colon, tilde, ne, gte, lte, gt,
+                          lt, eq, at, minus, plus, hash,
+                          qmark, range, star, quoted, raw]
+
 
 
 

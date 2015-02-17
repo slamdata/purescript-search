@@ -1,4 +1,7 @@
-module Text.SlamSearch.Parser.Values where
+module Text.SlamSearch.Parser.Values (
+  values, Value(..),
+  isTextual, isLabel, isMeta
+  ) where
 
 import Control.Apply
 import Control.Alt
@@ -9,11 +12,12 @@ import Data.Either
 
 import Text.Parsing.Parser
 import Text.Parsing.Parser.Combinators
-import Text.SlamSearch.Parser.Utils
+import Text.Parsing.Parser.Token
+
 import Text.SlamSearch.Parser.Tokens
 
 data Value =
-  Value String
+  TextVal String
   | RangeVal String String
   | Tag String
   | Label String
@@ -21,9 +25,9 @@ data Value =
   | Glob String
   | Through Token
 
-isValue :: Value -> Boolean
-isValue (Value _) = true
-isValue _ = false
+isTextVal :: Value -> Boolean
+isTextVal (TextVal _) = true
+isTextVal _ = false
 
 isRangeVal :: Value -> Boolean
 isRangeVal (RangeVal _ _) = true 
@@ -45,12 +49,12 @@ isGlob :: Value -> Boolean
 isGlob (Glob _) = true
 isGlob _ = false 
 
-isVal :: Value -> Boolean
-isVal v = isGlob v || isValue v || isRangeVal v || isTag v
+isTextual :: Value -> Boolean
+isTextual v = isGlob v || isTextVal v || isRangeVal v || isTag v
 
 instance valueShow :: Show Value where
   show val = case val of
-    Value str -> "Value(" <> str <> ")"
+    TextVal str -> "TextVal(" <> str <> ")"
     RangeVal str str' -> "Range(" <> str <> ".." <> str' <> ")"
     Tag str -> "Tag(" <> str <> ")"
     Label str -> "Label(" <> str <> ")"
@@ -59,7 +63,7 @@ instance valueShow :: Show Value where
     Through tok -> "Through(" <> show tok <> ")"
 
 instance valueEq :: Eq Value where
-  (==) (Value v) (Value v') = v == v'
+  (==) (TextVal v) (TextVal v') = v == v'
   (==) (RangeVal v v') (RangeVal vv vv') = v == vv && v' == vv'
   (==) (Tag v) (Tag v') = v == v'
   (==) (Label v) (Label v') = v == v'
@@ -77,19 +81,19 @@ text = do
     _ -> fail "not text"
 
 tag :: Parser [Token] Value
-tag = get Hash *> when isText >>= \(Text txt) -> return $ Tag txt
+tag = match Hash *> when isText >>= \(Text txt) -> return $ Tag txt
 
 label :: Parser [Token] Value
 label = do
   txt <- try do
     txt <- text
-    get Colon
+    match Colon
     return txt
   return $ Label txt
 
 meta :: Parser [Token] Value
 meta = do
-  get At
+  match At
   l <- label
   case l of
     Label t -> return $ MetaLabel t
@@ -98,14 +102,14 @@ meta = do
 rangeVal :: Parser [Token] Value
 rangeVal = do
   bottom <- text
-  get Range
+  match Range
   up <- text
 
   return $ RangeVal bottom up
 
 globSymb :: Parser [Token] String
-globSymb = (get Star *> return "*")
-           <|> (get QMark *> return "?")
+globSymb = (match Star *> return "*")
+           <|> (match QMark *> return "?")
 
 globTextP :: Parser [Token] String
 globTextP = try do
@@ -135,11 +139,11 @@ glob = do
 simple :: Parser [Token] Value
 simple = try do
   txt <- text
-  return $ Value txt 
+  return $ TextVal txt
   
   
 through :: Parser [Token] Value
-through = Through <$> takeTok
+through = Through <$> token
 
 vals :: Parser [Token] [Value]
 vals = many $ do

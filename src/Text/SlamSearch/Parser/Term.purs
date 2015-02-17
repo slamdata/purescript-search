@@ -1,48 +1,50 @@
-module Text.SlamSearch.Parser.Terms where
+module Text.SlamSearch.Parser.Terms (
+  search, SearchTerm(..), SearchTermSimple(..), Predicate(..), Label(..)
+  ) where
 
 import Text.SlamSearch.Parser.Values
 import Text.SlamSearch.Parser.Tokens
-import Text.SlamSearch.Parser.Utils
 
 import Text.Parsing.Parser
 import Text.Parsing.Parser.Combinators
+import Text.Parsing.Parser.Token
 import Control.Apply
 import Control.Alt
 import Control.Alternative
 import Data.Tuple
 import Data.Either
 
-data SimplePredicate =
-  ContainsP Value
-  | EqP Value
-  | GtP Value
-  | GteP Value
-  | LteP Value
-  | LtP Value
-  | NeP Value
-  | LikeP Value
+data Predicate =
+  ContainsPredicate Value
+  | EqPredicate Value
+  | GtPredicate Value
+  | GtePredicate Value
+  | LtePredicate Value
+  | LtPredicate Value
+  | NePredicate Value
+  | LikePredicate Value
 
-instance showSimplePredicate :: Show SimplePredicate where
+instance showPredicate :: Show Predicate where
   show a = case a of
-    ContainsP p -> "ContainsP(" <> show p <> ")"
-    EqP p -> "EqP(" <> show p <> ")"
-    GtP p -> "GtP(" <> show p <> ")"
-    GteP p -> "GteP(" <> show p <> ")"
-    LteP p -> "GteP(" <> show p <> ")"
-    LtP p -> "LtP(" <> show p <> ")"
-    NeP p -> "NeP(" <> show p <> ")"
-    LikeP p -> "LikeP(" <> show p <> ")"
+    ContainsPredicate p -> "ContainsPredicate(" <> show p <> ")"
+    EqPredicate p -> "EqPredicate(" <> show p <> ")"
+    GtPredicate p -> "GtPredicate(" <> show p <> ")"
+    GtePredicate p -> "GtePredicate(" <> show p <> ")"
+    LtePredicate p -> "GtePredicate(" <> show p <> ")"
+    LtPredicate p -> "LtPredicate(" <> show p <> ")"
+    NePredicate p -> "NePredicate(" <> show p <> ")"
+    LikePredicate p -> "LikePredicate(" <> show p <> ")"
 
 
-instance eqSimplePredicate :: Eq SimplePredicate where
-  (==) (ContainsP p) (ContainsP p') = p == p'
-  (==) (EqP p) (EqP p') = p == p'
-  (==) (GtP p) (GtP p') = p == p'
-  (==) (GteP p) (GteP p') = p == p'
-  (==) (LteP p) (LteP p') = p == p'
-  (==) (LtP p) (LtP p') = p == p'
-  (==) (NeP p) (NeP p') = p == p'
-  (==) (LikeP p) (LikeP p') = p == p'
+instance predicateEq :: Eq Predicate where
+  (==) (ContainsPredicate p) (ContainsPredicate p') = p == p'
+  (==) (EqPredicate p) (EqPredicate p') = p == p'
+  (==) (GtPredicate p) (GtPredicate p') = p == p'
+  (==) (GtePredicate p) (GtePredicate p') = p == p'
+  (==) (LtePredicate p) (LtePredicate p') = p == p'
+  (==) (LtPredicate p) (LtPredicate p') = p == p'
+  (==) (NePredicate p) (NePredicate p') = p == p'
+  (==) (LikePredicate p) (LikePredicate p') = p == p'
   (==) _ _ = false
   (/=) a b = not $ a == b
 
@@ -61,18 +63,15 @@ instance eqLabel :: Eq Label where
   (==) _ _ = false
   (/=) a b = not $ a == b
 
-data SearchTermSimple =
-  SimplePredicate SimplePredicate
-  | InfieldPredicate [Label] SimplePredicate
+data SearchTermSimple = SearchTermSimple [Label] Predicate
 
 instance showSearchTermSimpleEq :: Show SearchTermSimple where
-  show a = case a of
-    SimplePredicate p -> "SimplePredicate(" <> show p <> ")"
-    InfieldPredicate ls p -> "InfieldPredicate(" <> show ls <> "," <> show p <> ")"
+  show (SearchTermSimple ls p) =
+    "SearchTermSimple(" <> show ls <> "," <> show p <> ")"
+
 
 instance eqSearchTermSimple :: Eq SearchTermSimple where
-  (==) (SimplePredicate p) (SimplePredicate p') = p == p'
-  (==) (InfieldPredicate ls p) (InfieldPredicate ls' p') =
+  (==) (SearchTermSimple ls p) (SearchTermSimple ls' p') =
     p == p' && ls == ls'
   (==) _ _ = false
   (/=) a b = not $ a == b
@@ -80,6 +79,8 @@ instance eqSearchTermSimple :: Eq SearchTermSimple where
 data SearchTerm =
   IncludeTerm SearchTermSimple
   | ExcludeTerm SearchTermSimple
+
+
 
 instance searchTermEq :: Eq SearchTerm where
   (==) (IncludeTerm t) (IncludeTerm t') = t == t'
@@ -93,17 +94,25 @@ instance showSearchTerm :: Show SearchTerm where
     ExcludeTerm t -> "Exclude(" <> show t <> ")"
 
 data PredicateAndLabel =
-  P SimplePredicate
+  P Predicate
   | L Label
-  | I
-  | E
+  | Include
+  | Exclude
+
+instance predicateAndLabelEq :: Eq PredicateAndLabel where
+  (==) (P p) (P p') = p == p'
+  (==) (L l) (L l') = l == l'
+  (==) Include Include = true
+  (==) Exclude Exclude = true
+  (==) _ _ = false
+  (/=) a b = not $ a == b
 
 instance showPredicateAndLabel :: Show PredicateAndLabel where
   show pl = case pl of
     P sp -> "P(" <> show sp <> ")"
     L l -> "L(" <> show l <> ")"
-    I -> "I"
-    E -> "E"
+    Include -> "Include"
+    Exclude -> "Exclude"
 
 
 isP :: PredicateAndLabel -> Boolean
@@ -114,19 +123,12 @@ isL :: PredicateAndLabel -> Boolean
 isL (L _) = true
 isL _ = false
 
-isI :: PredicateAndLabel -> Boolean
-isI I = true
-isI _ = false
+include :: Parser [Value] PredicateAndLabel
+include = match (Through Plus) *> pure Include
 
-isE :: PredicateAndLabel -> Boolean
-isE E = true
-isE _ = false 
+exclude :: Parser [Value] PredicateAndLabel
+exclude = match (Through Minus) *> pure Exclude
 
-i :: Parser [Value] PredicateAndLabel
-i = get (Through Plus) *> pure I
-
-e :: Parser [Value] PredicateAndLabel
-e = get (Through Minus) *> pure E
 
 l :: Parser [Value] PredicateAndLabel
 l = do
@@ -134,69 +136,71 @@ l = do
   (when isMeta >>= \(MetaLabel t) -> return $ L (Meta t))
 
 
-containsP :: Parser [Value] SimplePredicate
-containsP = ContainsP <$> when isVal
+containsPredicate :: Parser [Value] Predicate
+containsPredicate = ContainsPredicate <$> when isTextual
 
-eqP :: Parser [Value] SimplePredicate
-eqP =  get (Through Eq) *> (EqP <$> when isVal) 
+eqPredicate :: Parser [Value] Predicate
+eqPredicate =  match (Through Eq) *> (EqPredicate <$> when isTextual) 
 
-gtP :: Parser [Value] SimplePredicate
-gtP =  get (Through Gt) *> (GtP <$> when isVal) 
+gtPredicate :: Parser [Value] Predicate
+gtPredicate =  match (Through Gt) *> (GtPredicate <$> when isTextual) 
 
-gteP :: Parser [Value] SimplePredicate
-gteP = get (Through GtE) *> (GteP <$> when isVal) 
+gtePredicate :: Parser [Value] Predicate
+gtePredicate = match (Through GtE) *> (GtePredicate <$> when isTextual) 
 
-ltP :: Parser [Value] SimplePredicate
-ltP = get (Through Lt) *> (LtP <$> when isVal) 
+ltPredicate :: Parser [Value] Predicate
+ltPredicate = match (Through Lt) *> (LtPredicate <$> when isTextual) 
 
-lteP :: Parser [Value] SimplePredicate
-lteP = get (Through LtE) *> (LteP <$> when isVal) 
+ltePredicate :: Parser [Value] Predicate
+ltePredicate = match (Through LtE) *> (LtePredicate <$> when isTextual) 
 
-neP :: Parser [Value] SimplePredicate
-neP = get (Through Ne) *> (NeP <$> when isVal) 
+nePredicate :: Parser [Value] Predicate
+nePredicate = match (Through Ne) *> (NePredicate <$> when isTextual) 
 
-likeP :: Parser [Value] SimplePredicate
-likeP = get (Through Tilde) *> (LikeP <$> when isVal) 
+likePredicate :: Parser [Value] Predicate
+likePredicate = match (Through Tilde) *> (LikePredicate <$> when isTextual) 
   
 p :: Parser [Value] PredicateAndLabel
-p = P <$> choice [try likeP,
-                  try neP,
-                  try lteP,
-                  try ltP,
-                  try gtP,
-                  try gteP,
-                  try eqP,
-                  containsP]
+p = P <$> choice [try likePredicate,
+                  try nePredicate,
+                  try ltePredicate,
+                  try ltPredicate,
+                  try gtPredicate,
+                  try gtePredicate,
+                  try eqPredicate,
+                  containsPredicate]
 
 predicatesAndLabels :: Parser [Value] [PredicateAndLabel]
-predicatesAndLabels = many $ choice [try p, try l, i, e]
+predicatesAndLabels = many $ choice [try p, try l, include, exclude]
+
+getPredicate :: Parser [PredicateAndLabel] Predicate
+getPredicate = do
+  (P p) <- when isP
+  return p
 
 simpleTerm :: Parser [PredicateAndLabel] SearchTermSimple
 simpleTerm = do
   ls <- try $ many (when isL >>= \(L l) -> return l)
-  p <- when isP
-  case Tuple ls p of
-    Tuple [] (P p) -> return $ SimplePredicate p
-    Tuple xs (P p) -> return $ InfieldPredicate xs p
-    Tuple _ _ -> fail "impossible happens in simpleTerm"
+  p <- getPredicate
+  return $ SearchTermSimple ls p
 
 searchTermI :: Parser [PredicateAndLabel] SearchTerm
 searchTermI = do
-  i <- option I (when isI)
+  i <- option Include (match Include)
   term <- simpleTerm
   return $ IncludeTerm term
 
 searchTermE :: Parser [PredicateAndLabel] SearchTerm
 searchTermE = do
-  e <- when isE
+  e <- match Exclude
   term <- simpleTerm
   return $ ExcludeTerm term
 
-searchQuery :: Parser [PredicateAndLabel] [SearchTerm]
-searchQuery = many $ choice [searchTermE, searchTermI]
+searchTerm :: Parser [PredicateAndLabel] SearchTerm
+searchTerm = choice [searchTermE, searchTermI]
 
-search :: [Value] -> Either ParseError [SearchTerm]
+search :: [Value] -> Either ParseError SearchTerm
 search tokens =
   let parse = flip runParser in
-  runParser tokens predicatesAndLabels >>= parse searchQuery
+  runParser tokens predicatesAndLabels >>= parse searchTerm
 
