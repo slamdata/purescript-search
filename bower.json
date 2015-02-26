@@ -1,0 +1,24 @@
+{
+  "name": "purescript-search",
+  "version": "0.0.0",
+  "homepage": "https://github.com/slamdata/purescript-search",
+  "authors": [
+    "Maxim Zimaliev <zimaliev@yandex.ru>"
+  ],
+  "description": "library to parse SlamSearch queries",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "purescript-mocha": "~0.0.3",
+    "purescript-parsing": "~0.3.0",
+    "purescript-chai": "https://github.com/cryogenian/purescript-chai.git#master",
+    "purescript-strings": "~0.4.3",
+    "purescript-foldable-traversable": "~0.3.0"
+  }
+}
