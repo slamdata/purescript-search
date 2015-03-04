@@ -1,0 +1,20 @@
+{
+  "name": "purescript-search",
+  "version": "0.1.0",
+  "description": "Library for parsing slamsearch",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/slamdata/purescript-search/"
+  },
+  "author": "Maxim Zimaliev",
+  "license": "MIT",
+  "homepage": "https://github.com/cryogenian/slamdata-frontend",
+  "dependencies": {
+    "gulp": "^3.8.11",
+    "mandragora-bucket": "^0.1.10"
+  }
+}
