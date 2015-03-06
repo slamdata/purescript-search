@@ -1,4 +1,4 @@
-module Text.SlamSearch.Printer (prettyQuery) where
+module Text.SlamSearch.Printer where
 
 import Data.Array (reverse)
 

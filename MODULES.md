@@ -53,6 +53,41 @@ prettyQuery :: SearchQuery -> String
 ```
 
 
+#### `prettyTerm`
+
+``` purescript
+prettyTerm :: SearchTerm -> String
+```
+
+
+#### `prettySimpleTerm`
+
+``` purescript
+prettySimpleTerm :: SearchTermSimple -> String
+```
+
+
+#### `prettyLabels`
+
+``` purescript
+prettyLabels :: [Label] -> String
+```
+
+
+#### `prettyPredicate`
+
+``` purescript
+prettyPredicate :: Predicate -> String
+```
+
+
+#### `prettyValue`
+
+``` purescript
+prettyValue :: Value -> String
+```
+
+
 
 ## Module Text.SlamSearch.Parser.Terms
 
