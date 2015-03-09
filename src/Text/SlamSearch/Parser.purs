@@ -1,5 +1,5 @@
 module Text.SlamSearch.Parser (
-  parseSearchQuery, parseSearchTerm, SearchQuery(..)
+  parseSearchQuery, parseSearchTerm, SearchQuery(..), termsToQuery
   ) where
 
 import Data.Either
