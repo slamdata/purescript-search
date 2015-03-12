@@ -15,11 +15,13 @@
     "tests"
   ],
   "dependencies": {
-    "purescript-mocha": "~0.0.3",
     "purescript-strings": "~0.4.3",
     "purescript-foldable-traversable": "~0.3.0",
-    "purescript-exceptions": "~0.2.2",
-    "purescript-parsing": "~0.3.1",
-    "purescript-strongcheck": "~0.8.0"
+    "purescript-parsing": "~0.3.1"
   }
+    "devDependencies": {
+        "purescript-mocha": "~0.0.3",
+        "purescript-strongcheck": "~0.8.0",
+        "purescript-exceptions": "~0.2.2"
+    }
 }
