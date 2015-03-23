@@ -1,43 +1,161 @@
 # Module Documentation
 
+## Module Text.SlamSearch
+
+#### `mkQuery`
+
+``` purescript
+mkQuery :: String -> SearchQuery
+```
+
+
+#### `semiringBool`
+
+``` purescript
+instance semiringBool :: Semiring Boolean
+```
+
+
+#### `check`
+
+``` purescript
+check :: forall a. a -> SearchQuery -> (a -> Term -> Boolean) -> Boolean
+```
+
+
+
 ## Module Text.SlamSearch.Parser
 
-
-
-#### `SearchQuery`
+#### `text`
 
 ``` purescript
-data SearchQuery
-  = EmptyQuery 
-  | SearchAnd SearchTerm SearchQuery
+text :: P.Parser [Tk.Token] String
 ```
 
 
-#### `showSearchQuery`
+#### `label`
 
 ``` purescript
-instance showSearchQuery :: Show SearchQuery
+label :: P.Parser [Tk.Token] S.Label
 ```
 
 
-#### `eqSearchQuery`
+#### `meta`
 
 ``` purescript
-instance eqSearchQuery :: Eq SearchQuery
+meta :: P.Parser [Tk.Token] S.Label
 ```
 
 
-#### `parseSearchQuery`
+#### `slabel`
 
 ``` purescript
-parseSearchQuery :: String -> Either ParseError SearchQuery
+slabel :: P.Parser [Tk.Token] S.Label
 ```
 
 
-#### `parseSearchTerm`
+#### `tag`
 
 ``` purescript
-parseSearchTerm :: String -> Either ParseError SearchTerm
+tag :: P.Parser [Tk.Token] S.Value
+```
+
+
+#### `range`
+
+``` purescript
+range :: P.Parser [Tk.Token] S.Value
+```
+
+
+#### `val`
+
+``` purescript
+val :: P.Parser [Tk.Token] S.Value
+```
+
+
+#### `svalue`
+
+``` purescript
+svalue :: P.Parser [Tk.Token] S.Value
+```
+
+
+#### `PredicateParser`
+
+``` purescript
+type PredicateParser = P.Parser [Tk.Token] S.Predicate
+```
+
+
+#### `contains`
+
+``` purescript
+contains :: PredicateParser
+```
+
+
+#### `eq`
+
+``` purescript
+eq :: PredicateParser
+```
+
+
+#### `gt`
+
+``` purescript
+gt :: PredicateParser
+```
+
+
+#### `gte`
+
+``` purescript
+gte :: PredicateParser
+```
+
+
+#### `lt`
+
+``` purescript
+lt :: PredicateParser
+```
+
+
+#### `lte`
+
+``` purescript
+lte :: PredicateParser
+```
+
+
+#### `ne`
+
+``` purescript
+ne :: PredicateParser
+```
+
+
+#### `like`
+
+``` purescript
+like :: PredicateParser
+```
+
+
+#### `predicate`
+
+``` purescript
+predicate :: PredicateParser
+```
+
+
+#### `term`
+
+``` purescript
+term :: P.Parser [Tk.Token] S.Term
 ```
 
 
@@ -45,80 +163,20 @@ parseSearchTerm :: String -> Either ParseError SearchTerm
 ## Module Text.SlamSearch.Printer
 
 
+## Module Text.SlamSearch.Types
 
-#### `prettyQuery`
+#### `SearchQuery`
 
 ``` purescript
-prettyQuery :: SearchQuery -> String
+type SearchQuery = Free Term
 ```
 
+SearchQuery is free semiring on Term
 
-#### `prettyTerm`
-
-``` purescript
-prettyTerm :: SearchTerm -> String
-```
-
-
-#### `prettySimpleTerm`
+#### `Term`
 
 ``` purescript
-prettySimpleTerm :: SearchTermSimple -> String
-```
-
-
-#### `prettyLabels`
-
-``` purescript
-prettyLabels :: [Label] -> String
-```
-
-
-#### `prettyPredicate`
-
-``` purescript
-prettyPredicate :: Predicate -> String
-```
-
-
-#### `prettyValue`
-
-``` purescript
-prettyValue :: Value -> String
-```
-
-
-
-## Module Text.SlamSearch.Parser.Terms
-
-
-
-#### `Predicate`
-
-``` purescript
-data Predicate
-  = ContainsPredicate Value
-  | EqPredicate Value
-  | GtPredicate Value
-  | GtePredicate Value
-  | LtePredicate Value
-  | LtPredicate Value
-  | NePredicate Value
-  | LikePredicate Value
-```
-
-
-#### `showPredicate`
-
-``` purescript
-instance showPredicate :: Show Predicate
-```
-
-
-#### `predicateEq`
-
-``` purescript
-instance predicateEq :: Eq Predicate
+type Term = { predicate :: Predicate, labels :: [Label], include :: Boolean }
 ```
 
 
@@ -131,99 +189,40 @@ data Label
 ```
 
 
-#### `showLabel`
+#### `Predicate`
 
 ``` purescript
-instance showLabel :: Show Label
+data Predicate
+  = Contains Value
+  | Eq Value
+  | Gt Value
+  | Gte Value
+  | Lt Value
+  | Lte Value
+  | Ne Value
+  | Like String
 ```
 
 
-#### `eqLabel`
+#### `Value`
 
 ``` purescript
-instance eqLabel :: Eq Label
-```
-
-
-#### `SearchTermSimple`
-
-``` purescript
-data SearchTermSimple
-  = SearchTermSimple [Label] Predicate
-```
-
-
-#### `showSearchTermSimpleEq`
-
-``` purescript
-instance showSearchTermSimpleEq :: Show SearchTermSimple
-```
-
-
-#### `eqSearchTermSimple`
-
-``` purescript
-instance eqSearchTermSimple :: Eq SearchTermSimple
-```
-
-
-#### `SearchTerm`
-
-``` purescript
-data SearchTerm
-  = IncludeTerm SearchTermSimple
-  | ExcludeTerm SearchTermSimple
-```
-
-
-#### `searchTermEq`
-
-``` purescript
-instance searchTermEq :: Eq SearchTerm
-```
-
-
-#### `showSearchTerm`
-
-``` purescript
-instance showSearchTerm :: Show SearchTerm
-```
-
-
-#### `predicateAndLabelEq`
-
-``` purescript
-instance predicateAndLabelEq :: Eq PredicateAndLabel
-```
-
-
-#### `showPredicateAndLabel`
-
-``` purescript
-instance showPredicateAndLabel :: Show PredicateAndLabel
-```
-
-
-#### `search`
-
-``` purescript
-search :: [Value] -> Either ParseError SearchTerm
+data Value
+  = Text String
+  | Range String String
+  | Tag String
 ```
 
 
 
 ## Module Text.SlamSearch.Parser.Tokens
 
-
-
 #### `Token`
 
 ``` purescript
 data Token
   = Text String
-  | Star 
   | Range 
-  | QMark 
   | Hash 
   | Plus 
   | Minus 
@@ -264,67 +263,6 @@ isText :: Token -> Boolean
 
 ``` purescript
 tokens :: String -> Either ParseError [Token]
-```
-
-
-
-## Module Text.SlamSearch.Parser.Values
-
-
-
-#### `Value`
-
-``` purescript
-data Value
-  = TextVal String
-  | RangeVal String String
-  | Tag String
-  | Label String
-  | MetaLabel String
-  | Glob String
-  | Through Token
-```
-
-
-#### `isLabel`
-
-``` purescript
-isLabel :: Value -> Boolean
-```
-
-
-#### `isMeta`
-
-``` purescript
-isMeta :: Value -> Boolean
-```
-
-
-#### `isTextual`
-
-``` purescript
-isTextual :: Value -> Boolean
-```
-
-
-#### `valueShow`
-
-``` purescript
-instance valueShow :: Show Value
-```
-
-
-#### `valueEq`
-
-``` purescript
-instance valueEq :: Eq Value
-```
-
-
-#### `values`
-
-``` purescript
-values :: [Token] -> Either ParseError [Value]
 ```
 
 
