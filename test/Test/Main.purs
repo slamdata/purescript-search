@@ -1,9 +1,9 @@
 module Test.Main where
 
-import Test.S
-import Test.Check
+import Debug.Trace
+import Debug.Foreign
 
 main = do
-  check
-  spec
+  print "foo"
+
 
