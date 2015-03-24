@@ -9,13 +9,6 @@ mkQuery :: String -> SearchQuery
 ```
 
 
-#### `semiringBool`
-
-``` purescript
-instance semiringBool :: Semiring Boolean
-```
-
-
 #### `check`
 
 ``` purescript
@@ -26,132 +19,6 @@ check :: forall a. a -> SearchQuery -> (a -> Term -> Boolean) -> Boolean
 
 ## Module Text.SlamSearch.Parser
 
-#### `text`
-
-``` purescript
-text :: P.Parser [Tk.Token] String
-```
-
-
-#### `label`
-
-``` purescript
-label :: P.Parser [Tk.Token] S.Label
-```
-
-
-#### `meta`
-
-``` purescript
-meta :: P.Parser [Tk.Token] S.Label
-```
-
-
-#### `slabel`
-
-``` purescript
-slabel :: P.Parser [Tk.Token] S.Label
-```
-
-
-#### `tag`
-
-``` purescript
-tag :: P.Parser [Tk.Token] S.Value
-```
-
-
-#### `range`
-
-``` purescript
-range :: P.Parser [Tk.Token] S.Value
-```
-
-
-#### `val`
-
-``` purescript
-val :: P.Parser [Tk.Token] S.Value
-```
-
-
-#### `svalue`
-
-``` purescript
-svalue :: P.Parser [Tk.Token] S.Value
-```
-
-
-#### `PredicateParser`
-
-``` purescript
-type PredicateParser = P.Parser [Tk.Token] S.Predicate
-```
-
-
-#### `contains`
-
-``` purescript
-contains :: PredicateParser
-```
-
-
-#### `eq`
-
-``` purescript
-eq :: PredicateParser
-```
-
-
-#### `gt`
-
-``` purescript
-gt :: PredicateParser
-```
-
-
-#### `gte`
-
-``` purescript
-gte :: PredicateParser
-```
-
-
-#### `lt`
-
-``` purescript
-lt :: PredicateParser
-```
-
-
-#### `lte`
-
-``` purescript
-lte :: PredicateParser
-```
-
-
-#### `ne`
-
-``` purescript
-ne :: PredicateParser
-```
-
-
-#### `like`
-
-``` purescript
-like :: PredicateParser
-```
-
-
-#### `predicate`
-
-``` purescript
-predicate :: PredicateParser
-```
-
-
 #### `term`
 
 ``` purescript
@@ -161,6 +28,41 @@ term :: P.Parser [Tk.Token] S.Term
 
 
 ## Module Text.SlamSearch.Printer
+
+#### `strLabel`
+
+``` purescript
+strLabel :: Label -> String
+```
+
+
+#### `strValue`
+
+``` purescript
+strValue :: Value -> String
+```
+
+
+#### `strPredicate`
+
+``` purescript
+strPredicate :: Predicate -> String
+```
+
+
+#### `strTerm`
+
+``` purescript
+strTerm :: Term -> String
+```
+
+
+#### `strQuery`
+
+``` purescript
+strQuery :: SearchQuery -> String
+```
+
 
 
 ## Module Text.SlamSearch.Types
@@ -176,7 +78,22 @@ SearchQuery is free semiring on Term
 #### `Term`
 
 ``` purescript
-type Term = { predicate :: Predicate, labels :: [Label], include :: Boolean }
+newtype Term
+  = Term { predicate :: Predicate, labels :: [Label], include :: Boolean }
+```
+
+
+#### `showTerm`
+
+``` purescript
+instance showTerm :: Show Term
+```
+
+
+#### `eqTerm`
+
+``` purescript
+instance eqTerm :: Eq Term
 ```
 
 
@@ -186,6 +103,20 @@ type Term = { predicate :: Predicate, labels :: [Label], include :: Boolean }
 data Label
   = Common String
   | Meta String
+```
+
+
+#### `showLabel`
+
+``` purescript
+instance showLabel :: Show Label
+```
+
+
+#### `eqLabel`
+
+``` purescript
+instance eqLabel :: Eq Label
 ```
 
 
@@ -204,6 +135,20 @@ data Predicate
 ```
 
 
+#### `eqPredicate`
+
+``` purescript
+instance eqPredicate :: Eq Predicate
+```
+
+
+#### `showPredicate`
+
+``` purescript
+instance showPredicate :: Show Predicate
+```
+
+
 #### `Value`
 
 ``` purescript
@@ -211,6 +156,20 @@ data Value
   = Text String
   | Range String String
   | Tag String
+```
+
+
+#### `eqValue`
+
+``` purescript
+instance eqValue :: Eq Value
+```
+
+
+#### `showValue`
+
+``` purescript
+instance showValue :: Show Value
 ```
 
 
