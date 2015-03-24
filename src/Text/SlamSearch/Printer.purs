@@ -6,44 +6,44 @@ import Data.String (trim)
 import Text.SlamSearch.Types
 import Data.Semiring.Free
 
-printLabel :: Label -> String
-printLabel l = case l of
+strLabel :: Label -> String
+strLabel l = case l of
   Common str -> str <> ":"
   Meta str -> "@" <> str <> ":"
 
-printValue :: Value -> String
-printValue v = case v of
+strValue :: Value -> String
+strValue v = case v of
   Text str -> str
   Range bot up -> bot <> ".." <> up
   Tag str -> "#" <> str
 
-printPredicate :: Predicate -> String
-printPredicate pr = case pr of
-  Contains v -> printValue v
-  Eq v -> "=" <> printValue v
-  Gt v -> ">" <> printValue v
-  Gte v -> ">=" <> printValue v
-  Lt v -> "<" <> printValue v
-  Lte v -> "<=" <> printValue v
-  Ne v -> "<>" <> printValue v
+strPredicate :: Predicate -> String
+strPredicate pr = case pr of
+  Contains v -> strValue v
+  Eq v -> "=" <> strValue v
+  Gt v -> ">" <> strValue v
+  Gte v -> ">=" <> strValue v
+  Lt v -> "<" <> strValue v
+  Lte v -> "<=" <> strValue v
+  Ne v -> "<>" <> strValue v
   Like str -> "~" <> str
 
-printTerm :: Term -> String
-printTerm {include: include, labels: labels, predicate: predicate} =
-  printInclude include <> printLabels labels <> printPredicate predicate
-  where printInclude :: Boolean -> String
-        printInclude true = "+"
-        printInclude _ = "-"
+strTerm :: Term -> String
+strTerm (Term {include: include, labels: labels, predicate: predicate}) =
+  strInclude include <> strLabels labels <> strPredicate predicate
+  where strInclude :: Boolean -> String
+        strInclude true = "+"
+        strInclude _ = "-"
 
-        printLabels :: [Label] -> String
-        printLabels ls = fold $ printLabel <$> ls
+        strLabels :: [Label] -> String
+        strLabels ls = fold $ strLabel <$> ls
 
 
-printQuery :: SearchQuery -> String
-printQuery query =
+strQuery :: SearchQuery -> String
+strQuery query =
   let terms = runFree query in
   trim $ 
   foldr (\a b -> b <> " " <> a) "" $
-  foldr (\a b -> b <> " " <> printTerm a) "" <$>
+  foldr (\a b -> b <> " " <> strTerm a) "" <$>
   terms 
         

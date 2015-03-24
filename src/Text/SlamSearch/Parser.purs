@@ -1,8 +1,10 @@
-module Text.SlamSearch.Parser where
+module Text.SlamSearch.Parser (term) where
 
 import Control.Apply
 import Control.Alt
 import Control.Alternative
+import Data.Array (reverse)
+
 
 import qualified Text.SlamSearch.Types as S
 import qualified Text.SlamSearch.Parser.Tokens as Tk
@@ -91,19 +93,17 @@ predicate = P.choice [P.try like,
                       P.try lte,
                       P.try lt,
                       P.try gt,
+                      P.try gte,
                       P.try eq,
                       contains]
 
 term :: P.Parser [Tk.Token] S.Term
 term = do
-  included <- P.option true do
-    P.try (P.match Tk.Minus *> (pure false))
-    <|>
-    P.try (P.match Tk.Plus *> (pure true))
+  included <- P.option true $
+              (P.match Tk.Plus *> pure true) <|> (P.match Tk.Minus *> pure false)
+  labels <- many slabel P.<?> "label"
+  predicate <- predicate P.<?> "predicate"
 
-  labels <- many slabel
-  predicate <- predicate
-
-  pure {include: included,
-        labels: labels,
-        predicate: predicate}
+  pure <<< S.Term $ {include: included,
+                     labels: labels,
+                     predicate: predicate}

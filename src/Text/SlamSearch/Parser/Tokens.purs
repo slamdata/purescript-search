@@ -26,8 +26,6 @@ keyChars = [
   "$",
   "^",
   "&",
---  "*",
---  "?",
   "(",
   ")",
   "-",
@@ -74,9 +72,7 @@ quotedString = do
 
 data Token =
   Text String
---  | Star
   | Range
---  | QMark
   | Hash
   | Plus
   | Minus
@@ -93,9 +89,7 @@ data Token =
 instance showToken :: Show Token where
   show t = case t of
     Text s -> "Text(" <> s <> ")"
---    Star -> "Star"
     Range -> "Range"
---    QMark -> "QMark"
     Hash -> "Hash"
     Plus -> "Plus"
     Minus -> "Minus"
@@ -111,9 +105,7 @@ instance showToken :: Show Token where
 
 instance eqToken :: Eq Token where
   (==) (Text s) (Text s') = s == s'
---  (==) Star Star = true
   (==) Range Range = true
---  (==) QMark QMark = true
   (==) Hash Hash = true
   (==) Plus Plus = true
   (==) Minus Minus = true
@@ -139,14 +131,8 @@ raw = Text <$> rawString
 quoted :: Parser String Token
 quoted = Text <$> quotedString 
 
---star :: Parser String Token
---star = pure Star <* string "*" 
-
 range :: Parser String Token
 range = pure Range <* string ".." 
-
---qmark :: Parser String Token
---qmark = pure QMark <* string "?"
 
 hash :: Parser String Token
 hash = pure Hash <* string "#"
@@ -188,9 +174,7 @@ colon = pure Colon <* string ":"
 tokenize :: Parser String [Token]
 tokenize = many $ choice [colon, tilde, ne, gte, lte, gt,
                           lt, eq, at, minus, plus, hash,
---                          qmark,
                           range,
---                          star,
                           quoted, raw]
 
 
