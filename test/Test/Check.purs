@@ -2,18 +2,17 @@ module Test.Check where
 
 import Data.Either
 import Test.StrongCheck
-
-import Text.SlamSearch.Parser
-import Text.SlamSearch.Printer
+import Text.SlamSearch (mkQuery)
+import Text.SlamSearch.Printer (strQuery) 
+import Text.SlamSearch.Types
 import Test.Check.Gen
+import Data.Semiring.Free
 
-checkFn :: SearchQuery -> Result
-checkFn query =
-  let str = prettyQuery query in
-  case parseSearchQuery str of
+checkFn :: QueryWrapper -> Result
+checkFn (QueryWrapper query) = 
+  let str = strQuery query in
+  case mkQuery str of
     Left _ -> Failed (show query <> "\n" <> show str)
-    Right result -> 
-      result === query
+    Right res -> res === query
 
-check =
-  quickCheck checkFn
+check = quickCheck checkFn

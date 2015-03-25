@@ -15,6 +15,6 @@
   "homepage": "https://github.com/cryogenian/slamdata-frontend",
   "dependencies": {
     "gulp": "^3.8.11",
-    "mandragora-bucket": "^0.1.10"
+    "mandragora-bucket": "^0.1.12"
   }
 }

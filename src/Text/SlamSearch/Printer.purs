@@ -1,52 +1,49 @@
-module Text.SlamSearch.Printer (prettyQuery) where
+module Text.SlamSearch.Printer where
 
+import Data.Foldable (fold, foldr)
 import Data.Array (reverse)
+import Data.String (trim)
+import Text.SlamSearch.Types
+import Data.Semiring.Free
 
-import Text.SlamSearch.Parser
-import Text.SlamSearch.Parser.Terms
-import Text.SlamSearch.Parser.Values
+strLabel :: Label -> String
+strLabel l = case l of
+  Common str -> str <> ":"
+  Meta str -> "@" <> str <> ":"
+
+strValue :: Value -> String
+strValue v = case v of
+  Text str -> str
+  Range bot up -> bot <> ".." <> up
+  Tag str -> "#" <> str
+
+strPredicate :: Predicate -> String
+strPredicate pr = case pr of
+  Contains v -> strValue v
+  Eq v -> "=" <> strValue v
+  Gt v -> ">" <> strValue v
+  Gte v -> ">=" <> strValue v
+  Lt v -> "<" <> strValue v
+  Lte v -> "<=" <> strValue v
+  Ne v -> "<>" <> strValue v
+  Like str -> "~" <> str
+
+strTerm :: Term -> String
+strTerm (Term {include: include, labels: labels, predicate: predicate}) =
+  strInclude include <> strLabels labels <> strPredicate predicate
+  where strInclude :: Boolean -> String
+        strInclude true = "+"
+        strInclude _ = "-"
+
+        strLabels :: [Label] -> String
+        strLabels ls = fold $ strLabel <$> ls
 
 
-prettyQuery :: SearchQuery -> String
-prettyQuery EmptyQuery = ""
-prettyQuery (SearchAnd term EmptyQuery) = prettyTerm term
-prettyQuery (SearchAnd term query) = prettyTerm term <> " " <> prettyQuery query
-
-prettyTerm :: SearchTerm -> String
-prettyTerm (IncludeTerm term) = "+" <> prettySimpleTerm term
-prettyTerm (ExcludeTerm term) = "-" <> prettySimpleTerm term
-
-
-prettySimpleTerm :: SearchTermSimple -> String
-prettySimpleTerm (SearchTermSimple ls p) = prettyLabels ls <> prettyPredicate p
-
-
-prettyLabels :: [Label] -> String
-prettyLabels ls =
-  prettyLabels' (reverse ls) ""
-  where prettyLabels' ls acc =
-          case ls of
-            [] -> acc
-            (Common l):lls -> prettyLabels' lls (l <> ":" <> acc)
-            (Meta l):lls -> prettyLabels' lls ("@" <> l <> ":" <> acc)
-
-prettyPredicate :: Predicate -> String
-prettyPredicate p =
-  case p of
-    ContainsPredicate v -> prettyValue v
-    EqPredicate v -> "=" <> prettyValue v
-    GtPredicate v -> ">" <> prettyValue v
-    GtePredicate v -> ">=" <> prettyValue v
-    LtePredicate v -> "<=" <> prettyValue v
-    LtPredicate v -> "<" <> prettyValue v
-    NePredicate v -> "<>" <> prettyValue v
-    LikePredicate v -> "~" <> prettyValue v
-
-  
-prettyValue :: Value -> String
-prettyValue value =
-  case value of
-    TextVal str -> str
-    RangeVal str str' -> str <> ".." <> str'
-    Tag str -> "#" <> str
-    Glob str -> str 
+strQuery :: SearchQuery -> String
+strQuery query =
+  let terms = runFree query in
+  trim $ 
+  foldr (\a b -> b <> " " <> a) "" $
+  foldr (\a b -> b <> " " <> strTerm a) "" <$>
+  terms 
+        

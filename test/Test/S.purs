@@ -4,24 +4,16 @@ import Control.Monad.Eff
 import Control.Monad.Eff.Exception
 import Test.Mocha
 
-import Text.SlamSearch.Parser
-import Text.SlamSearch.Parser.Terms
-import Text.SlamSearch.Parser.Tokens
-import Text.SlamSearch.Parser.Values
-import Text.SlamSearch.Printer
-
-import Text.Parsing.Parser
-import Text.Parsing.Parser.Combinators
-import Text.Parsing.Parser.Expr
-import Text.Parsing.Parser.String
-import Data.Either
-import Data.Foldable
+import Data.Semiring.Free
 import Data.Tuple
-import Control.Apply
-import Control.Alt
-import Control.Alternative
-import Debug.Trace
+import Data.Foldable
+import Data.Either
 
+import Text.SlamSearch
+import Text.SlamSearch.Types
+
+import Debug.Trace
+import Debug.Foreign
 
 assert x = do
   if not x then
@@ -29,8 +21,8 @@ assert x = do
     else return unit
 
 searchTest = do
-  describe "searchTerm" $ do
-    it "should parse one term" $ do
+  describe "mkQuery" $ do
+    it "should parse queries" $ do
       let inputs = [
             ">2",
             "foo",
@@ -48,81 +40,44 @@ searchTest = do
             "foo:uni*",
             "@path:/foo/bar"
             ]
-
-      let results = [
-            IncludeTerm (SearchTermSimple [] (GtPredicate(TextVal("2")))),
-            IncludeTerm (SearchTermSimple [] (ContainsPredicate(TextVal("foo")))),
-            IncludeTerm (SearchTermSimple [] (ContainsPredicate(TextVal("foo")))),
-            ExcludeTerm (SearchTermSimple [] (ContainsPredicate(TextVal("foo")))),
-            IncludeTerm (SearchTermSimple [] (ContainsPredicate(Tag("foo")))),
-            IncludeTerm (SearchTermSimple [] (ContainsPredicate(Glob("*")))),
-            IncludeTerm (SearchTermSimple [] (ContainsPredicate(Glob("uni*")))),
-            IncludeTerm (SearchTermSimple [Common("foo")] (GtPredicate(TextVal "2"))),
-            IncludeTerm (SearchTermSimple
-                         [Common("foo")]
-                         (ContainsPredicate(RangeVal "0" "2"))),
-            
-            ExcludeTerm (SearchTermSimple
-                         [Common("foo")]
-                         (ContainsPredicate(RangeVal "0" "2"))),
-            
-            IncludeTerm (SearchTermSimple 
-                        [Common("foo"), Common("bar")]
-                        (ContainsPredicate(TextVal("baz")))),
-            
-            IncludeTerm (SearchTermSimple
-                          [Common("baz")]
-                          (LikePredicate(TextVal("\"_foo%bar\"")))),
-            
-            IncludeTerm (SearchTermSimple [] (LikePredicate(Glob("?foo*bar")))),
-            IncludeTerm (SearchTermSimple
-                         [Common("foo")]
-                         (ContainsPredicate(Glob("uni*")))),
-            
-            IncludeTerm (SearchTermSimple
-                          [Meta("path")]
-                          (ContainsPredicate(TextVal("/foo/bar"))))
+          expected = Term <$> [
+            {include: true, labels: [], predicate: Gt (Text "2")},
+            {include: true, labels: [], predicate: Contains (Text "foo")},
+            {include: true, labels: [], predicate: Contains (Text "foo")},
+            {include: false, labels: [], predicate: Contains (Text "foo")},
+            {include: true, labels: [], predicate: Contains (Tag "foo")},
+            {include: true, labels: [], predicate: Contains (Text "*")},
+            {include: true, labels: [], predicate: Contains (Text "uni*")},
+            {include: true, labels: [Common "foo"],
+             predicate: Gt (Text "2")},
+            {include: true, labels: [Common "foo"],
+             predicate: Contains (Range "0" "2")},
+            {include: false, labels: [Common "foo"],
+             predicate: Contains (Range "0" "2")},
+            {include: true, labels: [Common "foo", Common "bar"],
+             predicate: Contains (Text "baz")},
+            {include: true, labels: [Common "baz"],
+             predicate: Like "\"_foo%bar\""},
+            {include: true, labels: [],
+             predicate: Like "?foo*bar"},
+            {include: true, labels: [Common "foo"],
+             predicate: Contains (Text "uni*")},
+            {include: true, labels: [Meta "path"],
+             predicate: Contains (Text "/foo/bar")}
             ]
-      let cases = zip inputs results
-      for_ cases $ \(Tuple input expected) ->
-                   case parseSearchTerm input of
-                     Left msg -> assert false
-                     Right actual -> do
-                       assert $ actual == expected
-
-  describe "parseSearchQuery" $ do
-    it "should parse all query at once" $ do
-      let input = "foo bar baz"
-          expected = SearchAnd (IncludeTerm
-                                (SearchTermSimple []
-                                 (ContainsPredicate
-                                  (TextVal "foo"))))
-                     (SearchAnd (IncludeTerm
-                                 (SearchTermSimple []
-                                  (ContainsPredicate
-                                   (TextVal "bar"))))
-                      (SearchAnd (IncludeTerm
-                                  (SearchTermSimple []
-                                   (ContainsPredicate
-                                    (TextVal "baz"))))
-                       EmptyQuery))
-
-
-      print $ prettyQuery expected
-
-      case parseSearchQuery "baz:~\"_foo%bar\" -quux:foo:12..23" of
-        Left msg -> do
-          assert false
-        Right actual -> do
-          print $ prettyQuery actual
+          actual = mkQuery <$> inputs
+          tests = zip actual expected
       
-      case parseSearchQuery input of
-        Left msg -> do
-          assert false
-        Right actual -> do
-          print "!!!"
-          assert $ actual == expected
-
+      for_ tests (\(Tuple a e) -> 
+                     case a of
+                       Left _ -> assert false
+                       Right f ->
+                         case runFree f of
+                           [[res]] -> do
+                             print res
+                             print e
+                             assert $ res == e
+                           _ -> assert false)
 
 spec = do
   searchTest
