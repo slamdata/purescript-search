@@ -9,10 +9,10 @@ import Test.Check.Gen
 import Data.Semiring.Free
 
 checkFn :: QueryWrapper -> Result
-checkFn (QueryWrapper query) =
-  let str = strQuery query
-      res = mkQuery str
-  in res === query
-  
+checkFn (QueryWrapper query) = 
+  let str = strQuery query in
+  case mkQuery str of
+    Left _ -> Failed (show query <> "\n" <> show str)
+    Right res -> res === query
 
 check = quickCheck checkFn

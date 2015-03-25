@@ -7,6 +7,7 @@ import Test.Mocha
 import Data.Semiring.Free
 import Data.Tuple
 import Data.Foldable
+import Data.Either
 
 import Text.SlamSearch
 import Text.SlamSearch.Types
@@ -64,14 +65,19 @@ searchTest = do
             {include: true, labels: [Meta "path"],
              predicate: Contains (Text "/foo/bar")}
             ]
-          actual =  runFree <$> mkQuery <$> inputs
+          actual = mkQuery <$> inputs
           tests = zip actual expected
       
-      for_ tests (\(Tuple [[a]] e) -> do
-                    print a
-                    print e
-                    assert $ a == e)
-
+      for_ tests (\(Tuple a e) -> 
+                     case a of
+                       Left _ -> assert false
+                       Right f ->
+                         case runFree f of
+                           [[res]] -> do
+                             print res
+                             print e
+                             assert $ res == e
+                           _ -> assert false)
 
 spec = do
   searchTest
