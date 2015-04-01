@@ -18,7 +18,7 @@ import qualified Text.Parsing.Parser as P
 
 mkQuery :: String -> Either P.ParseError SearchQuery
 mkQuery input =
-  sequenceFree $ mkTerms input 
+  sequence $ mkTerms (trim input)
   where prepare :: String -> Free String
         prepare input = foldl (*) one $ free <$> reverse (split " " input)
         
