@@ -1,4 +1,4 @@
-module Text.SlamSearch where
+module Text.SlamSearch (mkQuery, check) where
 
 
 import Data.Semiring.Free
@@ -14,10 +14,6 @@ import Text.SlamSearch.Types
 import qualified Text.SlamSearch.Parser.Tokens as Tk
 import qualified Text.SlamSearch.Parser as S
 import qualified Text.Parsing.Parser as P
---import qualified Data.Array as A
---import Data.Array (reverse)
-
-
 
 splitBySpaces :: String -> [String]
 splitBySpaces input =

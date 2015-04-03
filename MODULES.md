@@ -5,7 +5,7 @@
 #### `mkQuery`
 
 ``` purescript
-mkQuery :: String -> SearchQuery
+mkQuery :: String -> Either P.ParseError SearchQuery
 ```
 
 
@@ -13,6 +13,67 @@ mkQuery :: String -> SearchQuery
 
 ``` purescript
 check :: forall a. a -> SearchQuery -> (a -> Term -> Boolean) -> Boolean
+```
+
+
+
+## Module Data.Semiring.Disjunctive
+
+#### `Disjunctive`
+
+``` purescript
+newtype Disjunctive
+  = Disjunctive Boolean
+```
+
+Boolean semiring in disjunctive normal form
+
+```purescript
+Disjunctive x + Disjunctive y = Disjunctive (x || y)
+Disjunctive x * Disjunctive y = Disjunctive (x && y) 
+zero :: Disjunctive = Disjunctive false
+one :: Disjunctive = Disjunctive true
+```
+
+#### `runDisjunctive`
+
+``` purescript
+runDisjunctive :: Disjunctive -> Boolean
+```
+
+
+#### `eqDisjunctive`
+
+``` purescript
+instance eqDisjunctive :: Eq Disjunctive
+```
+
+
+#### `ordDisjunctive`
+
+``` purescript
+instance ordDisjunctive :: Ord Disjunctive
+```
+
+
+#### `showDisjunctive`
+
+``` purescript
+instance showDisjunctive :: Show Disjunctive
+```
+
+
+#### `boolLikeDisjunctive`
+
+``` purescript
+instance boolLikeDisjunctive :: BoolLike Disjunctive
+```
+
+
+#### `semiringDisjunctive`
+
+``` purescript
+instance semiringDisjunctive :: Semiring Disjunctive
 ```
 
 
