@@ -58,7 +58,7 @@ searchTest = do
             {include: true, labels: [Common "foo", Common "bar"],
              predicate: Contains (Text "baz")},
             {include: true, labels: [Common "baz"],
-             predicate: Like "\"_foo%bar\""},
+             predicate: Like "_foo%bar"},
             {include: true, labels: [],
              predicate: Like "?foo*bar"},
             {include: true, labels: [Common "foo"],
@@ -66,7 +66,7 @@ searchTest = do
             {include: true, labels: [Meta "path"],
              predicate: Contains (Text "/foo/bar")},
             {include: true, labels: [Common "path"],
-             predicate: Contains (Text "\"foo bar\"")}
+             predicate: Contains (Text "foo bar")}
             ]
           actual = mkQuery <$> inputs
           tests = zip actual expected

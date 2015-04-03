@@ -68,7 +68,7 @@ quotedString = do
     cs <- many quotedSymbol
     case cs of
       [] -> fail "incorrect quoted string"
-      cs -> return $ "\"" <> (fold cs) <> "\""
+      cs -> return $ fold cs
 
 data Token =
   Text String
