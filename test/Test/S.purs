@@ -38,7 +38,8 @@ searchTest = do
             "baz:~\"_foo%bar\"",
             "~?foo*bar",
             "foo:uni*",
-            "@path:/foo/bar"
+            "@path:/foo/bar",
+            "path:\"foo bar\""
             ]
           expected = Term <$> [
             {include: true, labels: [], predicate: Gt (Text "2")},
@@ -63,7 +64,9 @@ searchTest = do
             {include: true, labels: [Common "foo"],
              predicate: Contains (Text "uni*")},
             {include: true, labels: [Meta "path"],
-             predicate: Contains (Text "/foo/bar")}
+             predicate: Contains (Text "/foo/bar")},
+            {include: true, labels: [Common "path"],
+             predicate: Contains (Text "\"foo bar\"")}
             ]
           actual = mkQuery <$> inputs
           tests = zip actual expected

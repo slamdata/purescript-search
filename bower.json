@@ -17,7 +17,8 @@
     "purescript-strings": "~0.4.3",
     "purescript-foldable-traversable": "~0.3.0",
     "purescript-parsing": "~0.3.1",
-    "purescript-semirings": "~0.1.2"
+    "purescript-semirings": "~0.1.2",
+    "purescript-lists": "~0.6.0"
   },
   "devDependencies": {
     "purescript-mocha": "~0.0.3",
