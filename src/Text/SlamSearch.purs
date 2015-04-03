@@ -1,12 +1,13 @@
-module Text.SlamSearch where
+module Text.SlamSearch (mkQuery, check) where
 
 
 import Data.Semiring.Free
-import Data.String
 import Data.Foldable
 import Data.Traversable
 import Data.Either
-import Data.Array (reverse)
+
+import Data.String (joinWith, split, trim)
+import Data.List
 import qualified Data.Semiring.Disjunctive as Dj
 
 import Text.SlamSearch.Types
@@ -14,13 +15,32 @@ import qualified Text.SlamSearch.Parser.Tokens as Tk
 import qualified Text.SlamSearch.Parser as S
 import qualified Text.Parsing.Parser as P
 
-
+splitBySpaces :: String -> [String]
+splitBySpaces input =
+  toArray $
+  (fold <<< reverse) <$>
+  splitBySpaces' (fromArray $ split "" input) (Cons Nil Nil) false
+  
+  where splitBySpaces' input (Cons current accum) quoted =
+          case input of
+            Nil -> Cons current accum
+            Cons char cs ->
+              let newWord = Cons char current
+                  newAccum = Cons newWord accum 
+              in case char of
+                "\"" -> splitBySpaces' cs newAccum (not quoted)
+                " " -> 
+                  if not quoted then
+                    splitBySpaces' cs (Cons Nil (Cons current accum)) false 
+                  else
+                    splitBySpaces' cs newAccum true 
+                _ -> splitBySpaces' cs newAccum quoted
 
 mkQuery :: String -> Either P.ParseError SearchQuery
 mkQuery input =
   sequence $ mkTerms (trim input)
   where prepare :: String -> Free String
-        prepare input = foldl (*) one $ free <$> reverse (split " " input)
+        prepare input = foldl (*) one $ free <$> splitBySpaces input
         
         mkTerms :: String -> Free (Either P.ParseError Term) 
         mkTerms input =
