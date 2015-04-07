@@ -1,11 +1,12 @@
 module Text.SlamSearch.Printer where
 
 import Data.Foldable (fold, foldr)
-import Data.Array (reverse, (\\), length)
+import Data.Array (reverse, intersect, length)
 import Data.String (trim, split)
 import Text.SlamSearch.Types
 import Text.SlamSearch.Parser.Tokens (keyChars)
 import Data.Semiring.Free
+import Debug.Foreign
 
 strLabel :: Label -> String
 strLabel l = case l of
@@ -18,7 +19,7 @@ strValue v = case v of
   Range bot up -> bot <> ".." <> up
   Tag str -> "#" <> str
   where quote str =
-          if length ((split "" str) \\ keyChars) > 0 then
+          if length ((split "" str) `intersect` keyChars) > 0 then
             "\"" <> str <> "\""
           else str
 

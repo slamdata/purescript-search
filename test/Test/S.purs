@@ -84,5 +84,7 @@ searchTest = do
                            _ -> assert false)
 
 spec = do
+  print $ strValue (Text "foo")
+  print $ strValue (Text "foo bar")
   searchTest
 
