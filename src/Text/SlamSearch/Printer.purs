@@ -1,12 +1,12 @@
 module Text.SlamSearch.Printer where
 
-import Data.Foldable (fold, foldr)
+import Prelude 
+import Data.Foldable (fold, foldr, Foldable)
 import Data.Array (reverse, intersect, length)
-import Data.String (trim, split)
+import Data.String (trim, split, toCharArray)
 import Text.SlamSearch.Types
 import Text.SlamSearch.Parser.Tokens (keyChars)
-import Data.Semiring.Free
-import Debug.Foreign
+import Data.Semiring.Free (runFree)
 
 strLabel :: Label -> String
 strLabel l = case l of
@@ -19,7 +19,7 @@ strValue v = case v of
   Range bot up -> bot <> ".." <> up
   Tag str -> "#" <> str
   where quote str =
-          if length ((split "" str) `intersect` keyChars) > 0 then
+          if length ((toCharArray str) `intersect` keyChars) > 0 then
             "\"" <> str <> "\""
           else str
 
@@ -41,7 +41,7 @@ strTerm (Term {include: include, labels: labels, predicate: predicate}) =
         strInclude true = "+"
         strInclude _ = "-"
 
-        strLabels :: [Label] -> String
+        strLabels :: forall f. (Foldable f, Functor f) => f Label -> String
         strLabels ls = fold $ strLabel <$> ls
 
 

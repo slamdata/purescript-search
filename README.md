@@ -2,4 +2,20 @@
 
 # purescript-search
 
-A grammar and parser for Google-style searches on unstru
+A grammar and parser for Google-style searches on unstructured or semistructured data
+
+## Installation
+
+```shell
+bower install purescript-search
+```
+
+## Documentation
+
+- [Data.Semiring.Disjunctive](docs/Data/Semiring/Disjunctive.md)
+- [Text.SlamSearch](docs/Text/SlamSearch.md)
+- [Text.SlamSearch.Parser](docs/SlamSearch/Parser.md)
+- [Text.SlamSearch.Parser.Tokens](docs/SlamSearch/Parser/Tokens.md)
+- [Text.SlamSearch.Printer](docs/SlamSearch/Printer)
+- [Text.SlamSearch.Types](docs/SlamSearch/Types)
+
