@@ -1,13 +1,15 @@
 module Text.SlamSearch.Types where
 
-import Data.Semiring.Free
+import Prelude
+import Data.Semiring.Free (Free())
+import Data.List (List())
 
 -- | SearchQuery is free semiring on Term
 type SearchQuery = Free Term
 
 newtype Term = Term {
   include :: Boolean,
-  labels :: [Label],
+  labels :: List Label,
   predicate :: Predicate
   }
 
@@ -17,11 +19,10 @@ instance showTerm :: Show Term where
 
 
 instance eqTerm :: Eq Term where
-  (==) (Term t) (Term t') =
+  eq (Term t) (Term t') =
     t.include == t'.include &&
     t.labels == t'.labels &&
     t.predicate == t'.predicate
-  (/=) a b = not $ a == b
 
 data Label = Common String | Meta String
 
@@ -31,28 +32,31 @@ instance showLabel :: Show Label where
 
 
 instance eqLabel :: Eq Label where
-  (==) (Common s) (Common s') = s == s'
-  (==) (Meta s) (Meta s') = s == s'
-  (==) _ _ = false
-  (/=) a b = not $ a == b
+  eq (Common s) (Common s') = s == s'
+  eq (Meta s) (Meta s') = s == s'
+  eq _ _ = false
 
-data Predicate =
-  Contains Value | Eq Value| Gt Value | Gte Value | Lt Value | Lte Value
-  | Ne Value | Like String
+data Predicate
+  = Contains Value
+  | Eq Value
+  | Gt Value
+  | Gte Value
+  | Lt Value
+  | Lte Value
+  | Ne Value
+  | Like String
 
 
 instance eqPredicate :: Eq Predicate where
-  (==) (Contains v) (Contains v') = v == v'
-  (==) (Eq v) (Eq v') = v == v'
-  (==) (Gt v) (Gt v') = v == v'
-  (==) (Gte v) (Gte v') = v == v'
-  (==) (Lte v) (Lte v') = v == v'
-  (==) (Lt v) (Lt v') = v == v'
-  (==) (Ne v) (Ne v') = v == v'
-  (==) (Like s) (Like s') = s == s'
-  (==) _ _ = false
-  (/=) a b = not $ a == b
-
+  eq (Contains v) (Contains v') = v == v'
+  eq (Eq v) (Eq v') = v == v'
+  eq (Gt v) (Gt v') = v == v'
+  eq (Gte v) (Gte v') = v == v'
+  eq (Lte v) (Lte v') = v == v'
+  eq (Lt v) (Lt v') = v == v'
+  eq (Ne v) (Ne v') = v == v'
+  eq (Like s) (Like s') = s == s'
+  eq _ _ = false
 
 instance showPredicate :: Show Predicate where
   show p = case p of
@@ -72,11 +76,10 @@ data Value
   | Tag String
 
 instance eqValue :: Eq Value where
-  (==) (Text s) (Text s') = s == s'
-  (==) (Tag s) (Tag s') = s == s'
-  (==) (Range b u) (Range b' u') = b == b' && u == u'
-  (==) _ _ = false
-  (/=) a b = not $ a == b
+  eq (Text s) (Text s') = s == s'
+  eq (Tag s) (Tag s') = s == s'
+  eq (Range b u) (Range b' u') = b == b' && u == u'
+  eq _ _ = false
 
 instance showValue :: Show Value where
   show v = case v of

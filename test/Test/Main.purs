@@ -1,13 +1,12 @@
 module Test.Main where
 
-import Debug.Trace
-import Debug.Foreign
-
+import Prelude
 import Test.Check
-import Test.S 
+import Test.Assertions
 
 main = do
   check
-  spec
+  assertions
+--  spec
 
 

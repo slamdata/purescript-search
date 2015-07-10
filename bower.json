@@ -14,16 +14,14 @@
     "tests"
   ],
   "dependencies": {
-    "purescript-strings": "~0.4.3",
-    "purescript-foldable-traversable": "~0.3.0",
-    "purescript-parsing": "~0.3.1",
-    "purescript-semirings": "~0.1.2",
-    "purescript-lists": "~0.6.0"
+    "purescript-strings": "^0.5.2",
+    "purescript-foldable-traversable": "^0.4.0",
+    "purescript-semirings": "^0.2.0",
+    "purescript-parsing": "^0.4.0",
+    "purescript-monoid": "^0.3.0",
+    "purescript-console": "^0.1.0"
   },
   "devDependencies": {
-    "purescript-mocha": "~0.0.3",
-    "purescript-strongcheck": "~0.8.0",
-    "purescript-exceptions": "~0.2.2",
-    "purescript-debug-foreign": "~0.0.4"
+    "purescript-strongcheck": "^0.10.0"
   }
 }

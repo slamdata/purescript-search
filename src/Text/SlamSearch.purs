@@ -1,13 +1,13 @@
 module Text.SlamSearch (mkQuery, check) where
 
-
+import Prelude 
 import Data.Semiring.Free
-import Data.Foldable
-import Data.Traversable
-import Data.Either
+import Data.Foldable (fold, foldl)
+import Data.Traversable (sequence)
+import Data.Either (Either())
 
 import Data.String (joinWith, split, trim)
-import Data.List
+import Data.List (reverse, List(..), toList)
 import qualified Data.Semiring.Disjunctive as Dj
 
 import Text.SlamSearch.Types
@@ -15,26 +15,22 @@ import qualified Text.SlamSearch.Parser.Tokens as Tk
 import qualified Text.SlamSearch.Parser as S
 import qualified Text.Parsing.Parser as P
 
-splitBySpaces :: String -> [String]
+splitBySpaces :: String -> List String
 splitBySpaces input =
-  toArray $
   (fold <<< reverse) <$>
-  splitBySpaces' (fromArray $ split "" input) (Cons Nil Nil) false
-  
-  where splitBySpaces' input (Cons current accum) quoted =
-          case input of
-            Nil -> Cons current accum
-            Cons char cs ->
-              let newWord = Cons char current
-                  newAccum = Cons newWord accum 
-              in case char of
-                "\"" -> splitBySpaces' cs newAccum (not quoted)
-                " " -> 
-                  if not quoted then
-                    splitBySpaces' cs (Cons Nil (Cons current accum)) false 
-                  else
-                    splitBySpaces' cs newAccum true 
-                _ -> splitBySpaces' cs newAccum quoted
+  splitBySpaces' (toList $ split "" input) (Cons Nil Nil) false
+  where
+  splitBySpaces' :: List String -> List (List String) -> Boolean -> List (List String)
+  splitBySpaces' Nil acc _ = acc
+  splitBySpaces' (Cons char cs) (Cons current accum) quoted =
+    let newWord = Cons char current
+        newAccum = Cons newWord accum
+    in case char of
+      "\"" -> splitBySpaces' cs newAccum (not quoted)
+      " " -> if not quoted
+             then splitBySpaces' cs (Cons Nil (Cons current accum)) false
+             else splitBySpaces' cs newAccum true
+      _ -> splitBySpaces' cs newAccum quoted
 
 mkQuery :: String -> Either P.ParseError SearchQuery
 mkQuery input =

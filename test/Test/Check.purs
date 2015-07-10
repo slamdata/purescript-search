@@ -1,5 +1,6 @@
 module Test.Check where
 
+import Prelude
 import Data.Either
 import Test.StrongCheck
 import Text.SlamSearch (mkQuery)
@@ -16,3 +17,4 @@ checkFn (QueryWrapper query) =
     Right res -> res === query
 
 check = quickCheck checkFn
+

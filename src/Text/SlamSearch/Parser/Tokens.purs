@@ -5,18 +5,22 @@ module Text.SlamSearch.Parser.Tokens (
   keyChars
   ) where
 
+import Prelude
+
 import Text.Parsing.Parser
 import Text.Parsing.Parser.Combinators 
 import Text.Parsing.Parser.String
 
-import Control.Apply
-import Control.Alt
-import Control.Alternative 
-import Data.Foldable
-import Data.Array (length)
-import Data.Either
+import Control.Apply ((<*))
+import Control.Alt ((<|>))
+import Data.Foldable (fold)
+import Data.List (many, List(..), fromList)
+import Data.Either (Either(..))
+import Data.String (fromChar, toCharArray, fromCharArray)
+import Data.Char (fromCharCode)
 
-keyChars = [
+keyChars :: Array Char
+keyChars = toCharArray $ fold [
   ",",
   ".",
   "~",
@@ -48,30 +52,30 @@ rawString :: Parser String String
 rawString = do
   cs <- many $ noneOf keyChars
   case cs of
-    [] -> fail "incorrect raw string"
-    cs -> return (fold cs)
+    Nil -> fail "incorrect raw string"
+    cs -> pure $ fromCharArray $ fromList cs 
     
 
 slashed :: Parser String String
 slashed = do
   slash <- string "\\"
-  ch <- char
-  return $ slash <> ch
+  ch <- anyChar
+  return $ slash <> fromChar ch
 
 quotedSymbol :: Parser String String
 quotedSymbol = do
-  (try slashed) <|> noneOf ["\""]
+  (try slashed) <|> (fromChar <$> noneOf [fromCharCode 34])
 
 quotedString :: Parser String String
 quotedString = do
   between (string "\"") (string "\"") $ do
     cs <- many quotedSymbol
     case cs of
-      [] -> fail "incorrect quoted string"
-      cs -> return $ fold cs
+      Nil -> fail "incorrect quoted string"
+      cs -> pure $ fold cs
 
-data Token =
-  Text String
+data Token 
+  = Text String
   | Range
   | Hash
   | Plus
@@ -104,22 +108,21 @@ instance showToken :: Show Token where
     Colon -> "Colon"
 
 instance eqToken :: Eq Token where
-  (==) (Text s) (Text s') = s == s'
-  (==) Range Range = true
-  (==) Hash Hash = true
-  (==) Plus Plus = true
-  (==) Minus Minus = true
-  (==) At At = true
-  (==) Eq Eq = true
-  (==) Lt Lt = true
-  (==) Gt Gt = true
-  (==) LtE LtE = true
-  (==) GtE GtE = true
-  (==) Ne Ne = true
-  (==) Tilde Tilde = true
-  (==) Colon Colon = true
-  (==) _ _ = false
-  (/=) a b = not $ a == b
+  eq (Text s) (Text s') = s == s'
+  eq Range Range = true
+  eq Hash Hash = true
+  eq Plus Plus = true
+  eq Minus Minus = true
+  eq At At = true
+  eq Eq Eq = true
+  eq Lt Lt = true
+  eq Gt Gt = true
+  eq LtE LtE = true
+  eq GtE GtE = true
+  eq Ne Ne = true
+  eq Tilde Tilde = true
+  eq Colon Colon = true
+  eq _ _ = false
 
 isText :: Token -> Boolean
 isText (Text _) = true
@@ -146,8 +149,8 @@ minus = pure Minus <* string "-"
 at :: Parser String Token
 at = pure At <* string "@" 
 
-eq :: Parser String Token
-eq = pure Eq <* string "=" 
+eq_ :: Parser String Token
+eq_ = pure Eq <* string "=" 
 
 lt :: Parser String Token
 lt = pure Lt <* string "<" 
@@ -171,15 +174,15 @@ colon :: Parser String Token
 colon = pure Colon <* string ":"
 
 
-tokenize :: Parser String [Token]
+tokenize :: Parser String (List Token)
 tokenize = many $ choice [colon, tilde, ne, gte, lte, gt,
-                          lt, eq, at, minus, plus, hash,
+                          lt, eq_, at, minus, plus, hash,
                           range,
                           quoted, raw]
 
 
 
 
-tokens :: String -> Either ParseError [Token]
+tokens :: String -> Either ParseError (List Token)
 tokens input = runParser input tokenize
 
