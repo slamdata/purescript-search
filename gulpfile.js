@@ -36,7 +36,6 @@ gulp.task('docs', function() {
     return purescript.pscDocs({
         src: sources,
         docgen: {
-            "Data.Semiring.Disjunctive": "docs/Data/Semiring/Disjunctive.md",
             "Text.SlamSearch": "docs/Text/SlamSearch.md",
             "Text.SlamSearch.Types": "docs/Text/SlamSearch/Types.md",
             "Text.SlamSearch.Printer": "docs/Text/SlamSearch/Printer.md",

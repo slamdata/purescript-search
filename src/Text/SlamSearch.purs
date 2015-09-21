@@ -11,7 +11,7 @@ import Data.Either (Either())
 
 import Data.String (joinWith, split, trim)
 import Data.List (reverse, List(..), toList)
-import qualified Data.Semiring.Disjunctive as Dj
+import qualified Data.Monoid.Disj as Dj
 
 import Text.SlamSearch.Types
 import qualified Text.SlamSearch.Parser.Tokens as Tk
@@ -51,5 +51,4 @@ mkQuery input =
 
 check :: forall a. a -> SearchQuery -> (a -> Term -> Boolean) -> Boolean
 check input query checkOneTerm =
-  Dj.runDisjunctive $
-  liftFree (Dj.Disjunctive <<< checkOneTerm input) $ query
+  Dj.runDisj $ liftFree (Dj.Disj <<< checkOneTerm input) $ query
