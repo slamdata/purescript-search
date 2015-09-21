@@ -19,6 +19,7 @@ newtype Term
 ``` purescript
 instance showTerm :: Show Term
 instance eqTerm :: Eq Term
+instance arbTerm :: Arbitrary Term
 ```
 
 #### `Label`
@@ -33,6 +34,7 @@ data Label
 ``` purescript
 instance showLabel :: Show Label
 instance eqLabel :: Eq Label
+instance arbLabel :: Arbitrary Label
 ```
 
 #### `Predicate`
@@ -53,6 +55,7 @@ data Predicate
 ``` purescript
 instance eqPredicate :: Eq Predicate
 instance showPredicate :: Show Predicate
+instance arbPredicate :: Arbitrary Predicate
 ```
 
 #### `Value`
@@ -66,6 +69,7 @@ data Value
 
 ##### Instances
 ``` purescript
+instance arbitraryValue :: Arbitrary Value
 instance eqValue :: Eq Value
 instance showValue :: Show Value
 ```

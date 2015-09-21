@@ -1,6 +1,6 @@
 module Text.SlamSearch.Parser (term) where
 
-import Prelude 
+import Prelude
 
 import Control.Apply ((*>))
 import Control.Alt ((<|>))
@@ -44,7 +44,7 @@ meta = do
 
 slabel :: P.Parser (List Tk.Token) S.Label
 slabel = P.choice [P.try meta, label]
-  
+
 
 tag :: P.Parser (List Tk.Token) S.Value
 tag = do
@@ -65,7 +65,7 @@ val = S.Text <$> text
 svalue :: P.Parser (List Tk.Token) S.Value
 svalue = P.choice [P.try tag, P.try range, val]
 
-  
+
 type PredicateParser = P.Parser (List Tk.Token) S.Predicate
 
 contains :: PredicateParser

@@ -1,6 +1,9 @@
-module Text.SlamSearch (mkQuery, check) where
+module Text.SlamSearch
+  ( mkQuery
+  , check
+  ) where
 
-import Prelude 
+import Prelude
 import Data.Semiring.Free
 import Data.Foldable (fold, foldl)
 import Data.Traversable (sequence)
@@ -37,16 +40,16 @@ mkQuery input =
   sequence $ mkTerms (trim input)
   where prepare :: String -> Free String
         prepare input = foldl (*) one $ free <$> splitBySpaces input
-        
-        mkTerms :: String -> Free (Either P.ParseError Term) 
+
+        mkTerms :: String -> Free (Either P.ParseError Term)
         mkTerms input =
-          parseTerm <$> prepare input 
+          parseTerm <$> prepare input
 
         parseTerm :: String -> Either P.ParseError Term
         parseTerm input = Tk.tokens input >>= flip P.runParser S.term
 
-              
-check :: forall a. a -> SearchQuery -> (a -> Term -> Boolean) -> Boolean 
+
+check :: forall a. a -> SearchQuery -> (a -> Term -> Boolean) -> Boolean
 check input query checkOneTerm =
   Dj.runDisjunctive $
   liftFree (Dj.Disjunctive <<< checkOneTerm input) $ query

@@ -2,6 +2,7 @@
 
 var gulp = require('gulp'),
     purescript = require('gulp-purescript'),
+    mocha = require('gulp-mocha'),
     runSequence = require('run-sequence'),
     run = require('gulp-run');
 
@@ -59,19 +60,16 @@ gulp.task('test-make', function() {
     });
 });
 
-gulp.task('test', ['test-make'], function() {
-    return purescript.pscBundle({
-        src: "output/**/*.js",
-        main: "Test.Main",
-        output: "dist/test.js"
-    }).pipe(run("node dist/test.js"));
-});
 
-
-gulp.task('test-bundle', ['test'], function() {
+gulp.task('test-bundle', ['test-make'], function() {
     return purescript.pscBundle({
         src: 'output/**/*.js',
         main: 'Test.Main',
         output: 'dist/test.js'
-    }).pipe(run('mocha dist/test.js'));
+    });
 });
+
+gulp.task('test', ['test-bundle'], function() {
+    return gulp.src("dist/test.js").pipe(mocha());
+});
+

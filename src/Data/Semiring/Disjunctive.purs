@@ -1,12 +1,15 @@
-module Data.Semiring.Disjunctive where
+module Data.Semiring.Disjunctive
+  ( Disjunctive(..)
+  , runDisjunctive
+  ) where
 
-import Prelude 
+import Prelude
 
 -- | Boolean semiring in disjunctive normal form
 -- |
 -- | ```purescript
 -- | Disjunctive x + Disjunctive y = Disjunctive (x || y)
--- | Disjunctive x * Disjunctive y = Disjunctive (x && y) 
+-- | Disjunctive x * Disjunctive y = Disjunctive (x && y)
 -- | zero :: Disjunctive = Disjunctive false
 -- | one :: Disjunctive = Disjunctive true
 -- | ```
@@ -14,7 +17,7 @@ import Prelude
 newtype Disjunctive = Disjunctive Boolean
 
 runDisjunctive :: Disjunctive -> Boolean
-runDisjunctive (Disjunctive a) = a 
+runDisjunctive (Disjunctive a) = a
 
 instance eqDisjunctive :: Eq Disjunctive where
   eq (Disjunctive a) (Disjunctive b) = a == b
