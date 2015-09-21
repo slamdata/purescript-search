@@ -109,8 +109,8 @@ term = do
               <|>
               (P.match notCarePos Tk.Minus *> pure false)
   labels <- many slabel P.<?> "label"
-  predicate <- predicate P.<?> "predicate"
+  pred <- predicate P.<?> "predicate"
 
   pure <<< S.Term $ {include: included,
                      labels: labels,
-                     predicate: predicate}
+                     predicate: pred}
