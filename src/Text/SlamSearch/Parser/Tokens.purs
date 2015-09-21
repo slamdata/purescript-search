@@ -1,14 +1,14 @@
-module Text.SlamSearch.Parser.Tokens (
-  tokens,
-  Token(..),
-  isText,
-  keyChars
+module Text.SlamSearch.Parser.Tokens
+  ( tokens
+  , Token(..)
+  , isText
+  , keyChars
   ) where
 
 import Prelude
 
 import Text.Parsing.Parser
-import Text.Parsing.Parser.Combinators 
+import Text.Parsing.Parser.Combinators
 import Text.Parsing.Parser.String
 
 import Control.Apply ((<*))
@@ -20,32 +20,32 @@ import Data.String (fromChar, toCharArray, fromCharArray)
 import Data.Char (fromCharCode)
 
 keyChars :: Array Char
-keyChars = toCharArray $ fold [
-  ",",
-  ".",
-  "~",
-  "!",
-  "@",
-  "#",
-  "$",
-  "^",
-  "&",
-  "(",
-  ")",
-  "-",
-  "+",
-  "=",
-  "<",
-  ">",
-  "[",
-  "]",
-  " ",
-  "\t",
-  "\r",
-  "\n",
-  "\"",
-  ":",
-  ""
+keyChars = toCharArray $ fold
+  [ ","
+  , "."
+  , "~"
+  , "!"
+  , "@"
+  , "#"
+  , "$"
+  , "^"
+  , "&"
+  , "("
+  , ")"
+  , "-"
+  , "+"
+  , "="
+  , "<"
+  , ">"
+  , "["
+  , "]"
+  , " "
+  , "\t"
+  , "\r"
+  , "\n"
+  , "\""
+  , ":"
+  , ""
   ]
 
 rawString :: Parser String String
@@ -53,8 +53,8 @@ rawString = do
   cs <- many $ noneOf keyChars
   case cs of
     Nil -> fail "incorrect raw string"
-    cs -> pure $ fromCharArray $ fromList cs 
-    
+    cs -> pure $ fromCharArray $ fromList cs
+
 
 slashed :: Parser String String
 slashed = do
@@ -74,7 +74,7 @@ quotedString = do
       Nil -> fail "incorrect quoted string"
       cs -> pure $ fold cs
 
-data Token 
+data Token
   = Text String
   | Range
   | Hash
@@ -129,13 +129,13 @@ isText (Text _) = true
 isText _ = false
 
 raw :: Parser String Token
-raw = Text <$> rawString 
+raw = Text <$> rawString
 
 quoted :: Parser String Token
-quoted = Text <$> quotedString 
+quoted = Text <$> quotedString
 
 range :: Parser String Token
-range = pure Range <* string ".." 
+range = pure Range <* string ".."
 
 hash :: Parser String Token
 hash = pure Hash <* string "#"
@@ -147,41 +147,38 @@ minus :: Parser String Token
 minus = pure Minus <* string "-"
 
 at :: Parser String Token
-at = pure At <* string "@" 
+at = pure At <* string "@"
 
 eq_ :: Parser String Token
-eq_ = pure Eq <* string "=" 
+eq_ = pure Eq <* string "="
 
 lt :: Parser String Token
-lt = pure Lt <* string "<" 
+lt = pure Lt <* string "<"
 
 gt :: Parser String Token
-gt = pure Gt <* string ">" 
+gt = pure Gt <* string ">"
 
 lte :: Parser String Token
-lte = pure LtE <* string "<=" 
+lte = pure LtE <* string "<="
 
 gte :: Parser String Token
-gte = pure GtE <* string ">=" 
+gte = pure GtE <* string ">="
 
 ne :: Parser String Token
-ne = pure Ne <* (string "!=" <|> string "<>") 
+ne = pure Ne <* (string "!=" <|> string "<>")
 
 tilde :: Parser String Token
-tilde = pure Tilde <* string "~" 
+tilde = pure Tilde <* string "~"
 
 colon :: Parser String Token
 colon = pure Colon <* string ":"
 
-
 tokenize :: Parser String (List Token)
-tokenize = many $ choice [colon, tilde, ne, gte, lte, gt,
-                          lt, eq_, at, minus, plus, hash,
-                          range,
-                          quoted, raw]
-
-
-
+tokenize = many $ choice
+  [ colon, tilde, ne, gte, lte, gt
+  , lt, eq_, at, minus, plus, hash
+  , range, quoted, raw
+  ]
 
 tokens :: String -> Either ParseError (List Token)
 tokens input = runParser input tokenize

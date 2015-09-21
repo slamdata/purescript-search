@@ -12,7 +12,6 @@ bower install purescript-search
 
 ## Documentation
 
-- [Data.Semiring.Disjunctive](docs/Data/Semiring/Disjunctive.md)
 - [Text.SlamSearch](docs/Text/SlamSearch.md)
 - [Text.SlamSearch.Parser](docs/SlamSearch/Parser.md)
 - [Text.SlamSearch.Parser.Tokens](docs/SlamSearch/Parser/Tokens.md)

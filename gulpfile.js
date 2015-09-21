@@ -2,6 +2,7 @@
 
 var gulp = require('gulp'),
     purescript = require('gulp-purescript'),
+    mocha = require('gulp-mocha'),
     runSequence = require('run-sequence'),
     run = require('gulp-run');
 
@@ -35,7 +36,6 @@ gulp.task('docs', function() {
     return purescript.pscDocs({
         src: sources,
         docgen: {
-            "Data.Semiring.Disjunctive": "docs/Data/Semiring/Disjunctive.md",
             "Text.SlamSearch": "docs/Text/SlamSearch.md",
             "Text.SlamSearch.Types": "docs/Text/SlamSearch/Types.md",
             "Text.SlamSearch.Printer": "docs/Text/SlamSearch/Printer.md",
@@ -59,19 +59,16 @@ gulp.task('test-make', function() {
     });
 });
 
-gulp.task('test', ['test-make'], function() {
-    return purescript.pscBundle({
-        src: "output/**/*.js",
-        main: "Test.Main",
-        output: "dist/test.js"
-    }).pipe(run("node dist/test.js"));
-});
 
-
-gulp.task('test-bundle', ['test'], function() {
+gulp.task('test-bundle', ['test-make'], function() {
     return purescript.pscBundle({
         src: 'output/**/*.js',
         main: 'Test.Main',
         output: 'dist/test.js'
-    }).pipe(run('mocha dist/test.js'));
+    });
 });
+
+gulp.task('test', ['test-bundle'], function() {
+    return gulp.src("dist/test.js").pipe(mocha());
+});
+

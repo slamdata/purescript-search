@@ -1,4 +1,6 @@
-module Test.Assertions where
+module Test.Assertions
+  ( assertions
+  ) where
 
 import Prelude
 import Control.Monad.Eff.Exception
@@ -12,10 +14,10 @@ import Data.Semiring.Free (runFree)
 
 import Text.SlamSearch
 import Text.SlamSearch.Printer
-import Text.SlamSearch.Types 
+import Text.SlamSearch.Types
 
-assert x = 
-  if not x 
+assert x =
+  if not x
   then throwException $ error $ "error in assertion"
   else pure unit
 
@@ -38,7 +40,7 @@ inputs =
   , "path:\"foo bar\""
   ]
 
-expected = Term <$> 
+expected = Term <$>
    [ {include: true, labels: Nil, predicate: Gt (Text "2")}
    , {include: true, labels: Nil, predicate: Contains (Text "foo")}
    , {include: true, labels: Nil, predicate: Contains (Text "foo")}
