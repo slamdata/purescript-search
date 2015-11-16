@@ -24,7 +24,6 @@ splitBySpaces input =
   splitBySpaces' (toList $ split "" input) (Cons Nil Nil) false
   where
   splitBySpaces' :: List String -> List (List String) -> Boolean -> List (List String)
-  splitBySpaces' Nil acc _ = acc
   splitBySpaces' (Cons char cs) (Cons current accum) quoted =
     let newWord = Cons char current
         newAccum = Cons newWord accum
@@ -34,6 +33,7 @@ splitBySpaces input =
              then splitBySpaces' cs (Cons Nil (Cons current accum)) false
              else splitBySpaces' cs newAccum true
       _ -> splitBySpaces' cs newAccum quoted
+  splitBySpaces' _ acc _ = acc
 
 mkQuery :: String -> Either P.ParseError SearchQuery
 mkQuery input =
