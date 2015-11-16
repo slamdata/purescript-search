@@ -1,23 +1,11 @@
 {
-  "name": "purescript-search",
-  "version": "0.1.0",
-  "description": "Library for parsing slamsearch",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/slamdata/purescript-search/"
-  },
-  "author": "Maxim Zimaliev",
-  "license": "MIT",
-  "homepage": "https://github.com/cryogenian/slamdata-frontend",
-  "dependencies": {
+  "private": true,
+  "devDependencies": {
     "gulp": "^3.9.0",
-    "gulp-purescript": "^0.5.0",
-    "gulp-run": "^1.6.8",
     "gulp-mocha": "^2.1.3",
+    "gulp-purescript": "^0.7.0",
+    "gulp-run": "^1.6.8",
+    "purescript": "^0.7.5",
     "run-sequence": "^1.1.1"
   }
 }

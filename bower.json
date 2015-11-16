@@ -1,12 +1,16 @@
 {
   "name": "purescript-search",
+  "description": "Library to parse SlamSearch queries",
   "homepage": "https://github.com/slamdata/purescript-search",
   "authors": [
     "Maxim Zimaliev <zimaliev@yandex.ru>",
     "Jon Sterling <jon@jonmsterling.com>"
   ],
-  "description": "library to parse SlamSearch queries",
-  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/slamdata/purescript-search.git"
+  },
+  "license": "Apache-2.0",
   "ignore": [
     "**/.*",
     "node_modules",
@@ -15,12 +19,12 @@
     "tests"
   ],
   "dependencies": {
-    "purescript-strings": "^0.7.0",
-    "purescript-foldable-traversable": "^0.4.0",
+    "purescript-console": "^0.1.1",
+    "purescript-foldable-traversable": "^0.4.1",
+    "purescript-monoid": "^0.3.2",
+    "purescript-parsing": "^0.7.1",
     "purescript-semirings": "^0.2.0",
-    "purescript-parsing": "^0.7.0",
-    "purescript-monoid": "^0.3.1",
-    "purescript-console": "^0.1.0",
-    "purescript-strongcheck": "^0.13.0"
+    "purescript-strings": "^0.7.0",
+    "purescript-strongcheck": "^0.14.4"
   }
 }

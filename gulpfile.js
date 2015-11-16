@@ -72,3 +72,4 @@ gulp.task('test', ['test-bundle'], function() {
     return gulp.src("dist/test.js").pipe(mocha());
 });
 
+gulp.task('default', ['make']);
