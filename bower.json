@@ -19,12 +19,14 @@
     "tests"
   ],
   "dependencies": {
-    "purescript-console": "^0.1.1",
     "purescript-foldable-traversable": "^0.4.1",
     "purescript-monoid": "^0.3.2",
     "purescript-parsing": "^0.7.1",
     "purescript-semirings": "^0.2.0",
-    "purescript-strings": "^0.7.0",
-    "purescript-strongcheck": "^0.14.4"
+    "purescript-strings": "^0.7.1",
+    "purescript-strongcheck": "^0.14.5"
+  },
+  "devDependencies": {
+    "purescript-console": "^0.1.1"
   }
 }
