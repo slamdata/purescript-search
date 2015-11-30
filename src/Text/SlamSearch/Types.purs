@@ -9,12 +9,13 @@ module Text.SlamSearch.Types
 import Prelude
 import Data.Semiring.Free (Free())
 import Data.List (List(..), toList)
-import qualified Data.String as Str
-import qualified Data.Char as Ch
-import qualified Test.StrongCheck as SC
-import qualified Test.StrongCheck.Gen as SC
+import Data.String as Str
+import Data.Char as Ch
+import Test.StrongCheck as SC
+import Test.StrongCheck.Gen as SC
 
--- | SearchQuery is free semiring on Term
+-- | SearchQuery is free semiring on Term where
+-- | `AND` operation is `*` and `OR` is `+`
 type SearchQuery = Free Term
 
 newtype Term = Term
@@ -26,15 +27,15 @@ newtype Term = Term
 instance showTerm :: Show Term where
   show (Term r) =
     "(Term {labels: "
-      <> show r.labels <> ", predicate: "
-      <> show r.predicate <> ", include: "
-      <> show r.include <> "})"
+    <> show r.labels <> ", predicate: "
+    <> show r.predicate <> ", include: "
+    <> show r.include <> "})"
 
 instance eqTerm :: Eq Term where
   eq (Term t) (Term t') =
-    t.include == t'.include &&
-    t.labels == t'.labels &&
-    t.predicate == t'.predicate
+       t.include == t'.include
+    && t.labels == t'.labels
+    && t.predicate == t'.predicate
 
 instance arbTerm :: SC.Arbitrary Term where
   arbitrary = do
@@ -44,8 +45,9 @@ instance arbTerm :: SC.Arbitrary Term where
          <*> SC.arbitrary
     pure $ Term r
 
-
-
+-- | Label type
+-- | `"foo:bar" --> Common (Text "foo")`,
+-- | `"@foo:bar" --> Meta (Text "foo")`
 data Label = Common String | Meta String
 
 instance showLabel :: Show Label where
@@ -62,7 +64,6 @@ instance arbLabel :: SC.Arbitrary Label where
     constructor <- SC.elements Common (Cons Meta Nil)
     constructor <$> genName
 
-
 data Predicate
   = Contains Value
   | Eq Value
@@ -72,7 +73,7 @@ data Predicate
   | Lte Value
   | Ne Value
   | Like String
-
+  | Range Value Value
 
 instance eqPredicate :: Eq Predicate where
   eq (Contains v) (Contains v') = v == v'
@@ -83,6 +84,9 @@ instance eqPredicate :: Eq Predicate where
   eq (Lt v) (Lt v') = v == v'
   eq (Ne v) (Ne v') = v == v'
   eq (Like s) (Like s') = s == s'
+  eq (Range r rr) (Range r' rr') =
+       r == r'
+    && rr == rr'
   eq _ _ = false
 
 instance showPredicate :: Show Predicate where
@@ -95,10 +99,12 @@ instance showPredicate :: Show Predicate where
     Lte v -> "(Lte " <> show v <> ")"
     Ne v -> "(Ne " <> show v <> ")"
     Like v -> "(Like " <> show v <> ")"
+    Range v vv -> "(Range " <> show v <> show vv <> ")"
 
 instance arbPredicate :: SC.Arbitrary Predicate where
   arbitrary = do
     val <- SC.arbitrary
+    val' <- SC.arbitrary
     str <- genName
     SC.elements (Contains val) $ toList
       [ Eq val
@@ -108,33 +114,30 @@ instance arbPredicate :: SC.Arbitrary Predicate where
       , Lte val
       , Ne val
       , Like str
+      , Range val val'
       ]
 
-data Value
-  = Text String
-  | Range String String
-  | Tag String
+-- | Value type
+-- | `"foo:bar" --> Text "bar"`
+-- | `"foo:#bar" --> Tag "bar"`
+data Value = Text String | Tag String
 
 genGenName :: String -> SC.Gen String
 genGenName strin = do
   len <- SC.chooseInt 1.0 5.0
   go len ""
-
   where
-    go len acc =
-      case len of
-        0 -> return acc
-        n -> do
-          ch <- Str.fromChar <$> SC.elements (Ch.fromCharCode 65)
-                (toList $ Str.toCharArray validChars)
-
-          go (len - 1) (ch <> acc)
+  go 0 acc = pure acc
+  go len acc = do
+    ch <- Str.fromChar <$> SC.elements (Ch.fromCharCode 65)
+          (toList $ Str.toCharArray validChars)
+    go (len - 1) (ch <> acc)
 
 validChars :: String
 validChars =
   "bcdefghijklmnopqrstuvwxyz"
-    <> "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    <> "01234567890"
+  <> "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  <> "01234567890"
 
 genName :: SC.Gen String
 genName = genGenName validChars
@@ -142,20 +145,14 @@ genName = genGenName validChars
 instance arbitraryValue :: SC.Arbitrary Value where
   arbitrary = do
     str <- genName
-    str' <- genName
-    SC.elements (Text str) $ toList
-      [ Range str str'
-      , Tag str
-      ]
+    SC.elements (Text str) $ toList [ Tag str ]
 
 instance eqValue :: Eq Value where
   eq (Text s) (Text s') = s == s'
   eq (Tag s) (Tag s') = s == s'
-  eq (Range b u) (Range b' u') = b == b' && u == u'
   eq _ _ = false
 
 instance showValue :: Show Value where
   show v = case v of
     Text s -> "(Text " <> show s <> ")"
     Tag s -> "(Tag " <> show s <> ")"
-    Range b u -> "(Range " <> show b <> " " <> show u <> ")"

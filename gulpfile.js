@@ -2,17 +2,7 @@
 
 var gulp = require('gulp'),
     purescript = require('gulp-purescript'),
-    mocha = require('gulp-mocha'),
-    runSequence = require('run-sequence'),
-    run = require('gulp-run');
-
-
-function sequence() {
-    var args = [].slice.apply(arguments);
-    return function() {
-        runSequence.apply(null, args);
-    };
-}
+    mocha = require("gulp-mocha");
 
 var sources = [
     'src/**/*.purs',
@@ -31,19 +21,6 @@ var testSources = [
 var testForeigns = [
     'test/**/*.js'
 ];
-
-gulp.task('docs', function() {
-    return purescript.pscDocs({
-        src: sources,
-        docgen: {
-            "Text.SlamSearch": "docs/Text/SlamSearch.md",
-            "Text.SlamSearch.Types": "docs/Text/SlamSearch/Types.md",
-            "Text.SlamSearch.Printer": "docs/Text/SlamSearch/Printer.md",
-            "Text.SlamSearch.Parser": "docs/Text/SlamSearch/Parser.md",
-            "Text.SlamSearch.Parser.Tokens": "docs/Text/SlamSearch/Parser/Tokens.md"
-        }
-    });
-});
 
 gulp.task('make', function() {
     return purescript.psc({

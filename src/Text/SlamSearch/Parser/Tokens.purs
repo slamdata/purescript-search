@@ -15,21 +15,22 @@ import Control.Apply ((<*))
 import Control.Alt ((<|>))
 import Data.Foldable (fold)
 import Data.List (many, List(..), fromList)
-import Data.Either (Either(..))
+import Data.Either (Either())
 import Data.String (fromChar, toCharArray, fromCharArray)
 import Data.Char (fromCharCode)
 
+-- | Chars that can not be used in query strings without escape.
+-- | This is invalid: `foo.bar`
+-- | This is invalid: `"foo.bar"`
+-- | This is invalid: `foo\.bar`
+-- | This is valid: `"foo\.bar"`
 keyChars :: Array Char
 keyChars = toCharArray $ fold
-  [ ","
-  , "."
+  [ "."
   , "~"
   , "!"
   , "@"
   , "#"
-  , "$"
-  , "^"
-  , "&"
   , "("
   , ")"
   , "-"
@@ -37,8 +38,6 @@ keyChars = toCharArray $ fold
   , "="
   , "<"
   , ">"
-  , "["
-  , "]"
   , " "
   , "\t"
   , "\r"
@@ -55,12 +54,11 @@ rawString = do
     Nil -> fail "incorrect raw string"
     cs -> pure $ fromCharArray $ fromList cs
 
-
 slashed :: Parser String String
 slashed = do
   slash <- string "\\"
   ch <- anyChar
-  return $ slash <> fromChar ch
+  pure $ fromChar ch
 
 quotedSymbol :: Parser String String
 quotedSymbol = do
@@ -124,6 +122,7 @@ instance eqToken :: Eq Token where
   eq Colon Colon = true
   eq _ _ = false
 
+-- | Check if token is wrapper for string, used in `Text.SlamSearch.Parser`
 isText :: Token -> Boolean
 isText (Text _) = true
 isText _ = false
@@ -180,6 +179,6 @@ tokenize = many $ choice
   , range, quoted, raw
   ]
 
+-- | Parse `String` to list of `Token`s.
 tokens :: String -> Either ParseError (List Token)
 tokens input = runParser input tokenize
-

@@ -6,9 +6,10 @@ module Text.SlamSearch.Printer
   ) where
 
 import Prelude
-import Data.Foldable (fold, foldr, Foldable)
-import Data.Array (reverse, intersect, length)
-import Data.String (trim, split, toCharArray)
+import Data.Foldable (foldr, Foldable, foldMap)
+import Data.Array (intersect, length)
+import Data.List (List())
+import Data.String (trim, toCharArray)
 import Text.SlamSearch.Types
 import Text.SlamSearch.Parser.Tokens (keyChars)
 import Data.Semiring.Free (runFree)
@@ -21,13 +22,12 @@ strLabel l = case l of
 strValue :: Value -> String
 strValue v = case v of
   Text str -> quote str
-  Range bot up -> bot <> ".." <> up
   Tag str -> "#" <> str
   where
-    quote str =
-      if length ((toCharArray str) `intersect` keyChars) > 0
-        then "\"" <> str <> "\""
-        else str
+  quote str =
+    if length ((toCharArray str) `intersect` keyChars) > 0
+    then "\"" <> str <> "\""
+    else str
 
 strPredicate :: Predicate -> String
 strPredicate pr = case pr of
@@ -39,24 +39,25 @@ strPredicate pr = case pr of
   Lte v -> "<=" <> strValue v
   Ne v -> "<>" <> strValue v
   Like str -> "~" <> str
+  Range v vv -> strValue v <> ".." <> strValue vv
 
 strTerm :: Term -> String
 strTerm (Term {include: include, labels: labels, predicate: predicate}) =
   strInclude include <> strLabels labels <> strPredicate predicate
   where
-    strInclude :: Boolean -> String
-    strInclude true = "+"
-    strInclude _ = "-"
+  strInclude :: Boolean -> String
+  strInclude true = "+"
+  strInclude _ = "-"
 
-    strLabels :: forall f. (Foldable f, Functor f) => f Label -> String
-    strLabels ls = fold $ strLabel <$> ls
-
+  strLabels :: forall f. (Foldable f) => f Label -> String
+  strLabels ls = foldMap strLabel ls
 
 strQuery :: SearchQuery -> String
 strQuery query =
-  let terms = runFree query in
   trim
-    $ foldr (\a b -> b <> " " <> a) ""
-    $ foldr (\a b -> b <> " " <> strTerm a) ""
-   <$> terms
-
+  $ foldr (\a b -> b <> " " <> a) ""
+  $ foldr (\a b -> b <> " " <> strTerm a) ""
+  <$> terms
+  where
+  terms :: List (List Term)
+  terms = runFree query
