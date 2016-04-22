@@ -1,9 +1,6 @@
 {
   "private": true,
   "devDependencies": {
-    "gulp": "^3.9.0",
-    "gulp-purescript": "^0.8.0",
-    "purescript": "^0.7.6",
-    "gulp-mocha": "^2.2.0"
+    "purescript": "^0.8.4"
   }
 }

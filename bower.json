@@ -21,7 +21,7 @@
   "dependencies": {
     "purescript-foldable-traversable": "^0.4.1",
     "purescript-monoid": "^0.3.2",
-    "purescript-parsing": "^0.7.1",
+    "purescript-parsing": "^0.8.0",
     "purescript-semirings": "^0.2.0",
     "purescript-strings": "^0.7.1",
     "purescript-strongcheck": "^0.14.5"
