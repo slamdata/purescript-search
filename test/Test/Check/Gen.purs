@@ -12,8 +12,8 @@ import Data.Foldable (foldl)
 -- helper type not to add orphan instances of Arbitrary on Free a
 newtype QueryWrapper = QueryWrapper SearchQuery
 
-instance arbQueryWrapper :: Arbitrary QueryWrapper where
+instance arbQueryWrapper ∷ Arbitrary QueryWrapper where
   arbitrary = do
-    k <- chooseInt 1.0 10.0
-    lst <- vectorOf k $ free <$> arbitrary
+    k ← chooseInt 1.0 10.0
+    lst ← vectorOf k $ free <$> arbitrary
     pure $ QueryWrapper $ foldl (*) one lst

@@ -6,58 +6,58 @@ module Text.SlamSearch.Printer
   ) where
 
 import Prelude
-import Data.Foldable (foldr, Foldable, foldMap)
+
+import Data.Foldable (foldr, class Foldable, foldMap)
 import Data.Array (intersect, length)
-import Data.List (List())
 import Data.String (trim, toCharArray)
-import Text.SlamSearch.Types
+import Text.SlamSearch.Types as SS
 import Text.SlamSearch.Parser.Tokens (keyChars)
 import Data.Semiring.Free (runFree)
 
-strLabel :: Label -> String
-strLabel l = case l of
-  Common str -> str <> ":"
-  Meta str -> "@" <> str <> ":"
+strLabel ∷ SS.Label → String
+strLabel =
+  case _ of
+    SS.Common str → str <> ":"
+    SS.Meta str → "@" <> str <> ":"
 
-strValue :: Value -> String
-strValue v = case v of
-  Text str -> quote str
-  Tag str -> "#" <> str
+strValue ∷ SS.Value → String
+strValue =
+  case _ of
+    SS.Text str → quote str
+    SS.Tag str → "#" <> str
   where
   quote str =
     if length ((toCharArray str) `intersect` keyChars) > 0
     then "\"" <> str <> "\""
     else str
 
-strPredicate :: Predicate -> String
-strPredicate pr = case pr of
-  Contains v -> strValue v
-  Eq v -> "=" <> strValue v
-  Gt v -> ">" <> strValue v
-  Gte v -> ">=" <> strValue v
-  Lt v -> "<" <> strValue v
-  Lte v -> "<=" <> strValue v
-  Ne v -> "<>" <> strValue v
-  Like str -> "~" <> str
-  Range v vv -> strValue v <> ".." <> strValue vv
+strPredicate ∷ SS.Predicate → String
+strPredicate =
+  case _ of
+    SS.Contains v → strValue v
+    SS.Eq v → "=" <> strValue v
+    SS.Gt v → ">" <> strValue v
+    SS.Gte v → ">=" <> strValue v
+    SS.Lt v → "<" <> strValue v
+    SS.Lte v → "<=" <> strValue v
+    SS.Ne v → "<>" <> strValue v
+    SS.Like str → "~" <> str
+    SS.Range v vv → strValue v <> ".." <> strValue vv
 
-strTerm :: Term -> String
-strTerm (Term {include: include, labels: labels, predicate: predicate}) =
+strTerm ∷ SS.Term → String
+strTerm (SS.Term { include, labels, predicate }) =
   strInclude include <> strLabels labels <> strPredicate predicate
   where
-  strInclude :: Boolean -> String
+  strInclude ∷ Boolean → String
   strInclude true = "+"
   strInclude _ = "-"
 
-  strLabels :: forall f. (Foldable f) => f Label -> String
+  strLabels ∷ ∀ f. (Foldable f) ⇒ f SS.Label → String
   strLabels ls = foldMap strLabel ls
 
-strQuery :: SearchQuery -> String
-strQuery query =
+strQuery ∷ SS.SearchQuery → String
+strQuery =
   trim
-  $ foldr (\a b -> b <> " " <> a) ""
-  $ foldr (\a b -> b <> " " <> strTerm a) ""
-  <$> terms
-  where
-  terms :: List (List Term)
-  terms = runFree query
+    <<< foldr (\a b → b <> " " <> a) ""
+    <<< map (foldr (\a b → b <> " " <> strTerm a) "")
+    <<< runFree
