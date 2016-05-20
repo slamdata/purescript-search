@@ -11,107 +11,107 @@ import Text.SlamSearch.Parser.Tokens as Tk
 
 import Text.Parsing.Parser.Pos (initialPos, Position())
 import Text.Parsing.Parser as P
-import Text.Parsing.Parser.Combinators as P
-import Text.Parsing.Parser.Token as P
+import Text.Parsing.Parser.Combinators as PC
+import Text.Parsing.Parser.Token as PT
 
-notCarePos :: forall a. a -> Position
+notCarePos ∷ ∀ a. a → Position
 notCarePos = const initialPos
 
-text :: P.Parser (List Tk.Token) String
+text ∷ P.Parser (List Tk.Token) String
 text = do
-  txt <- P.when notCarePos Tk.isText
+  txt ← PT.when notCarePos Tk.isText
   case txt of
-    Tk.Text s -> return s
-    _ -> P.fail "not text"
+    Tk.Text s → return s
+    _ → P.fail "not text"
 
-label :: P.Parser (List Tk.Token) S.Label
+label ∷ P.Parser (List Tk.Token) S.Label
 label = do
-  txt <- P.try do
-    txt <- text
-    P.match notCarePos Tk.Colon
-    pure txt
+  txt ← PC.try do
+    txt' ← text
+    PT.match notCarePos Tk.Colon
+    pure txt'
   pure $ S.Common txt
 
-meta :: P.Parser (List Tk.Token) S.Label
+meta ∷ P.Parser (List Tk.Token) S.Label
 meta = do
-  P.match notCarePos Tk.At
-  l <- label
+  PT.match notCarePos Tk.At
+  l ← label
   case l of
-    S.Common t -> pure $ S.Meta t
-    _ -> P.fail "incorrect metalabel"
+    S.Common t → pure $ S.Meta t
+    _ → P.fail "incorrect metalabel"
 
-slabel :: P.Parser (List Tk.Token) S.Label
-slabel = P.choice [P.try meta, label]
+slabel ∷ P.Parser (List Tk.Token) S.Label
+slabel = PC.choice [ PC.try meta, label ]
 
-tag :: P.Parser (List Tk.Token) S.Value
+tag ∷ P.Parser (List Tk.Token) S.Value
 tag = do
-  P.match notCarePos Tk.Hash
-  txt <- text
+  PT.match notCarePos Tk.Hash
+  txt ← text
   pure $ S.Tag txt
 
-val :: P.Parser (List Tk.Token) S.Value
+val ∷ P.Parser (List Tk.Token) S.Value
 val = S.Text <$> text
 
-svalue :: P.Parser (List Tk.Token) S.Value
-svalue = P.choice [P.try tag, val]
+svalue ∷ P.Parser (List Tk.Token) S.Value
+svalue = PC.choice [ PC.try tag, val ]
 
 type PredicateParser = P.Parser (List Tk.Token) S.Predicate
 
-contains :: PredicateParser
+contains ∷ PredicateParser
 contains = S.Contains <$> svalue
 
-eq_ :: PredicateParser
-eq_ = P.match notCarePos Tk.Eq *> (S.Eq <$> svalue)
+eq_ ∷ PredicateParser
+eq_ = PT.match notCarePos Tk.Eq *> (S.Eq <$> svalue)
 
-gt :: PredicateParser
-gt = P.match notCarePos Tk.Gt *> (S.Gt <$> svalue)
+gt ∷ PredicateParser
+gt = PT.match notCarePos Tk.Gt *> (S.Gt <$> svalue)
 
-gte :: PredicateParser
-gte = P.match notCarePos Tk.GtE *> (S.Gte <$> svalue)
+gte ∷ PredicateParser
+gte = PT.match notCarePos Tk.GtE *> (S.Gte <$> svalue)
 
-lt :: PredicateParser
-lt = P.match notCarePos Tk.Lt *> (S.Lt <$> svalue)
+lt ∷ PredicateParser
+lt = PT.match notCarePos Tk.Lt *> (S.Lt <$> svalue)
 
-lte :: PredicateParser
-lte = P.match notCarePos Tk.LtE *> (S.Lte <$> svalue)
+lte ∷ PredicateParser
+lte = PT.match notCarePos Tk.LtE *> (S.Lte <$> svalue)
 
-ne :: PredicateParser
-ne = P.match notCarePos Tk.Ne *> (S.Ne <$> svalue)
+ne ∷ PredicateParser
+ne = PT.match notCarePos Tk.Ne *> (S.Ne <$> svalue)
 
-like :: PredicateParser
-like = P.match notCarePos Tk.Tilde *> (S.Like <$> text)
+like ∷ PredicateParser
+like = PT.match notCarePos Tk.Tilde *> (S.Like <$> text)
 
-range :: PredicateParser
+range ∷ PredicateParser
 range = do
-  bottom <- svalue
-  P.match notCarePos Tk.Range
-  up <- svalue
+  bottom ← svalue
+  PT.match notCarePos Tk.Range
+  up ← svalue
   pure $ S.Range bottom up
 
-predicate :: PredicateParser
-predicate = P.choice [ P.try like
-                     , P.try ne
-                     , P.try lte
-                     , P.try lt
-                     , P.try gt
-                     , P.try gte
-                     , P.try eq_
-                     , P.try range
-                     , contains
-                     ]
+predicate ∷ PredicateParser
+predicate =
+  PC.choice
+    [ PC.try like
+    , PC.try ne
+    , PC.try lte
+    , PC.try lt
+    , PC.try gt
+    , PC.try gte
+    , PC.try eq_
+    , PC.try range
+    , contains
+    ]
+
 -- | Parse list of `Token`s to `Term`
-term :: P.Parser (List Tk.Token) S.Term
+term ∷ P.Parser (List Tk.Token) S.Term
 term = do
-  included <- P.option true
-              $   (P.match notCarePos Tk.Plus *> pure true)
-              <|> (P.match notCarePos Tk.Minus *> pure false)
-  labels <- many slabel P.<?> "label"
-  pred <- predicate P.<?> "predicate"
-  rest <- many $ P.try $ P.token notCarePos
+  included ←
+    PC.option true $
+      (PT.match notCarePos Tk.Plus *> pure true)
+      <|> (PT.match notCarePos Tk.Minus *> pure false)
+  labels ← many slabel PC.<?> "label"
+  pred ← predicate PC.<?> "predicate"
+  rest ← many $ PC.try $ PT.token notCarePos
   if not $ null rest
     then P.fail "incorrect query string"
-    else
-    pure $ S.Term $ { include: included
-                    , labels: labels
-                    , predicate: pred
-                    }
+    else pure $ S.Term $ { include: included, labels: labels, predicate: pred }
