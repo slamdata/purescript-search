@@ -7,10 +7,10 @@ import Prelude
 import Data.Semiring.Free (Free, liftFree, free)
 import Data.Foldable (fold, foldl)
 import Data.Traversable (sequence)
-import Data.Either (Either())
+import Data.Either (Either)
 
 import Data.String (split, trim)
-import Data.List (reverse, List(..), toList)
+import Data.List (List(..), reverse, fromFoldable)
 import Data.Monoid.Disj as Dj
 
 import Text.SlamSearch.Types (Term, SearchQuery)
@@ -24,7 +24,7 @@ import Text.Parsing.Parser as P
 -- | `"fo\"o b\"ar"` -→ `Cons "fo\"o b\"ar" Nil`
 splitBySpaces ∷ String → List String
 splitBySpaces input =
-  fold <<< reverse <$> splitBySpaces' (toList $ split "" input) (Cons Nil Nil) false
+  fold <<< reverse <$> splitBySpaces' (fromFoldable $ split "" input) (Cons Nil Nil) false
 
   where
   splitBySpaces' ∷ List String → List (List String) → Boolean → List (List String)

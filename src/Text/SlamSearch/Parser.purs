@@ -2,14 +2,13 @@ module Text.SlamSearch.Parser (term) where
 
 import Prelude
 
-import Control.Apply ((*>))
 import Control.Alt ((<|>))
-import Data.List (many, List(), null)
+import Data.List (List, many, null)
 
 import Text.SlamSearch.Types as S
 import Text.SlamSearch.Parser.Tokens as Tk
 
-import Text.Parsing.Parser.Pos (initialPos, Position())
+import Text.Parsing.Parser.Pos (Position, initialPos)
 import Text.Parsing.Parser as P
 import Text.Parsing.Parser.Combinators as PC
 import Text.Parsing.Parser.Token as PT
@@ -21,7 +20,7 @@ text ∷ P.Parser (List Tk.Token) String
 text = do
   txt ← PT.when notCarePos Tk.isText
   case txt of
-    Tk.Text s → return s
+    Tk.Text s → pure s
     _ → P.fail "not text"
 
 label ∷ P.Parser (List Tk.Token) S.Label

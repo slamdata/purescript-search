@@ -7,11 +7,13 @@ module Text.SlamSearch.Types
   ) where
 
 import Prelude
-import Data.Semiring.Free (Free())
-import Data.List (List(..), toList)
-import Data.String as Str
+
 import Data.Char as Ch
-import Test.StrongCheck as SC
+import Data.List (List(..), fromFoldable)
+import Data.Semiring.Free (Free)
+import Data.String as Str
+
+import Test.StrongCheck.Arbitrary as SCA
 import Test.StrongCheck.Gen as Gen
 
 -- | SearchQuery is free semiring on Term where
@@ -31,17 +33,13 @@ instance showTerm ∷ Show Term where
     <> show r.predicate <> ", include: "
     <> show r.include <> "})"
 
-instance eqTerm ∷ Eq Term where
-  eq (Term t) (Term t') =
-       t.include == t'.include
-    && t.labels == t'.labels
-    && t.predicate == t'.predicate
+derive instance eqTerm ∷ Eq Term
 
-instance arbTerm ∷ SC.Arbitrary Term where
+instance arbTerm ∷ SCA.Arbitrary Term where
   arbitrary = do
-    include ← SC.arbitrary
-    labels ← toList <$> (SC.arbitrary ∷ Gen.Gen (Array Label))
-    predicate ← SC.arbitrary
+    include ← SCA.arbitrary
+    labels ← fromFoldable <$> (SCA.arbitrary ∷ Gen.Gen (Array Label))
+    predicate ← SCA.arbitrary
     pure $ Term { include, labels, predicate }
 
 -- | Label type
@@ -53,12 +51,9 @@ instance showLabel ∷ Show Label where
   show (Common str) = "(Common " <> show str <> ")"
   show (Meta str) = "(Meta " <> show str <> ")"
 
-instance eqLabel ∷ Eq Label where
-  eq (Common s) (Common s') = s == s'
-  eq (Meta s) (Meta s') = s == s'
-  eq _ _ = false
+derive instance eqLabel ∷ Eq Label
 
-instance arbLabel ∷ SC.Arbitrary Label where
+instance arbLabel ∷ SCA.Arbitrary Label where
   arbitrary = do
     constructor ← Gen.elements Common (Cons Meta Nil)
     constructor <$> genName
@@ -74,19 +69,7 @@ data Predicate
   | Like String
   | Range Value Value
 
-instance eqPredicate ∷ Eq Predicate where
-  eq (Contains v) (Contains v') = v == v'
-  eq (Eq v) (Eq v') = v == v'
-  eq (Gt v) (Gt v') = v == v'
-  eq (Gte v) (Gte v') = v == v'
-  eq (Lte v) (Lte v') = v == v'
-  eq (Lt v) (Lt v') = v == v'
-  eq (Ne v) (Ne v') = v == v'
-  eq (Like s) (Like s') = s == s'
-  eq (Range r rr) (Range r' rr') =
-       r == r'
-    && rr == rr'
-  eq _ _ = false
+derive instance eqPredicate ∷ Eq Predicate
 
 instance showPredicate ∷ Show Predicate where
   show p = case p of
@@ -100,12 +83,12 @@ instance showPredicate ∷ Show Predicate where
     Like v → "(Like " <> show v <> ")"
     Range v vv → "(Range " <> show v <> show vv <> ")"
 
-instance arbPredicate ∷ SC.Arbitrary Predicate where
+instance arbPredicate ∷ SCA.Arbitrary Predicate where
   arbitrary = do
-    val ← SC.arbitrary
-    val' ← SC.arbitrary
+    val ← SCA.arbitrary
+    val' ← SCA.arbitrary
     str ← genName
-    Gen.elements (Contains val) $ toList
+    Gen.elements (Contains val) $ fromFoldable
       [ Eq val
       , Gt val
       , Gte val
@@ -128,8 +111,8 @@ genGenName strin = do
   where
   go 0 acc = pure acc
   go len acc = do
-    ch ← Str.fromChar <$> Gen.elements (Ch.fromCharCode 65)
-          (toList $ Str.toCharArray validChars)
+    ch ← Str.singleton <$> Gen.elements (Ch.fromCharCode 65)
+          (fromFoldable $ Str.toCharArray validChars)
     go (len - 1) (ch <> acc)
 
 validChars ∷ String
@@ -141,15 +124,12 @@ validChars =
 genName ∷ Gen.Gen String
 genName = genGenName validChars
 
-instance arbitraryValue ∷ SC.Arbitrary Value where
+instance arbitraryValue ∷ SCA.Arbitrary Value where
   arbitrary = do
     str ← genName
-    Gen.elements (Text str) $ toList [ Tag str ]
+    Gen.elements (Text str) $ fromFoldable [ Tag str ]
 
-instance eqValue ∷ Eq Value where
-  eq (Text s) (Text s') = s == s'
-  eq (Tag s) (Tag s') = s == s'
-  eq _ _ = false
+derive instance eqValue ∷ Eq Value
 
 instance showValue ∷ Show Value where
   show =

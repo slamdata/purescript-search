@@ -4,22 +4,21 @@ module Test.Assertions
 
 import Prelude
 
-import Control.Monad (unless)
-import Control.Monad.Eff (Eff())
+import Control.Monad.Eff (Eff)
+import Control.Monad.Eff.Console (logShow)
 import Control.Monad.Eff.Exception as Exn
-import Control.Monad.Eff.Console (print)
-import Data.Foldable (traverse_)
-import Data.Either (Either(), either)
-import Data.Array (zip)
-import Data.List (List(..), singleton, toList)
-import Data.Tuple (Tuple(..))
-import Data.Semiring.Free (runFree)
 
+import Data.Array (zip)
+import Data.Either (Either, either)
+import Data.Foldable (traverse_)
+import Data.List (List(..), singleton, fromFoldable)
+import Data.Semiring.Free (runFree)
+import Data.Tuple (Tuple(..))
+
+import Test.Effects (TEST_EFFECTS)
+import Text.Parsing.Parser (ParseError)
 import Text.SlamSearch (mkQuery)
 import Text.SlamSearch.Types as SS
-import Text.Parsing.Parser (ParseError())
-
-import Test.Effects (TEST_EFFECTS())
 
 assert ∷ Boolean → Eff TEST_EFFECTS Unit
 assert x =
@@ -91,7 +90,7 @@ expected =
       , predicate: SS.Range (SS.Text "0") (SS.Text "2")
       }
     , { include: true
-      , labels: toList [SS.Common "foo", SS.Common "bar"]
+      , labels: fromFoldable [SS.Common "foo", SS.Common "bar"]
       , predicate: SS.Contains (SS.Text "baz")
       }
     , { include: true
@@ -127,7 +126,7 @@ assertions = traverse_ traverseFn $ zip actual expected
     f ← either (const $ Exn.throwException $ Exn.error "incorrect query") pure a
     case runFree f of
       Cons (Cons res Nil) Nil → do
-        print res
-        print e
+        logShow res
+        logShow e
         assert $ res == e
       _ → assert false

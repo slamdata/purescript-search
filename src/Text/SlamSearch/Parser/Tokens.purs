@@ -7,17 +7,18 @@ module Text.SlamSearch.Parser.Tokens
 
 import Prelude
 
+import Control.Alt ((<|>))
+
+import Data.Array (fromFoldable)
+import Data.Char (fromCharCode)
+import Data.Either (Either)
+import Data.Foldable (fold)
+import Data.List (List(..), many)
+import Data.String (singleton, toCharArray, fromCharArray)
+
 import Text.Parsing.Parser as P
 import Text.Parsing.Parser.Combinators as PC
 import Text.Parsing.Parser.String as PS
-
-import Control.Apply ((<*))
-import Control.Alt ((<|>))
-import Data.Foldable (fold)
-import Data.List (many, List(..), fromList)
-import Data.Either (Either())
-import Data.String (fromChar, toCharArray, fromCharArray)
-import Data.Char (fromCharCode)
 
 -- | Chars that can not be used in query strings without escape.
 -- | This is invalid: `foo.bar`
@@ -52,17 +53,17 @@ rawString = do
   cs ← many $ PS.noneOf keyChars
   case cs of
     Nil → P.fail "incorrect raw string"
-    _ → pure $ fromCharArray $ fromList cs
+    _ → pure $ fromCharArray (fromFoldable cs)
 
 slashed ∷ P.Parser String String
 slashed = do
   slash ← PS.string "\\"
   ch ← PS.anyChar
-  pure $ fromChar ch
+  pure $ singleton ch
 
 quotedSymbol ∷ P.Parser String String
 quotedSymbol = do
-  (PC.try slashed) <|> (fromChar <$> PS.noneOf [fromCharCode 34])
+  (PC.try slashed) <|> (singleton <$> PS.noneOf [fromCharCode 34])
 
 quotedString ∷ P.Parser String String
 quotedString =
@@ -106,22 +107,7 @@ instance showToken ∷ Show Token where
       Tilde → "Tilde"
       Colon → "Colon"
 
-instance eqToken ∷ Eq Token where
-  eq (Text s) (Text s') = s == s'
-  eq Range Range = true
-  eq Hash Hash = true
-  eq Plus Plus = true
-  eq Minus Minus = true
-  eq At At = true
-  eq Eq Eq = true
-  eq Lt Lt = true
-  eq Gt Gt = true
-  eq LtE LtE = true
-  eq GtE GtE = true
-  eq Ne Ne = true
-  eq Tilde Tilde = true
-  eq Colon Colon = true
-  eq _ _ = false
+derive instance eqToken ∷ Eq Token
 
 -- | Check if token is wrapper for string, used in `Text.SlamSearch.P.Parser`
 isText ∷ Token → Boolean

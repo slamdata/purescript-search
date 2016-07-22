@@ -13,20 +13,22 @@
   "license": "Apache-2.0",
   "ignore": [
     "**/.*",
-    "node_modules",
     "bower_components",
+    "node_modules",
+    "output",
     "test",
-    "tests"
+    "bower.json",
+    "package.json"
   ],
   "dependencies": {
-    "purescript-foldable-traversable": "^0.4.1",
-    "purescript-monoid": "^0.3.2",
-    "purescript-parsing": "^0.8.0",
-    "purescript-semirings": "^0.2.0",
-    "purescript-strings": "^0.7.1",
-    "purescript-strongcheck": "^0.14.5"
+    "purescript-foldable-traversable": "^1.0.0",
+    "purescript-monoid": "^1.0.0",
+    "purescript-parsing": "^1.0.0",
+    "purescript-semirings": "^1.0.0",
+    "purescript-strings": "^1.0.0",
+    "purescript-strongcheck": "^1.0.0"
   },
   "devDependencies": {
-    "purescript-console": "^0.1.1"
+    "purescript-console": "^1.0.0"
   }
 }
