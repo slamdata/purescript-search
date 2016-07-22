@@ -7,7 +7,7 @@ module Text.SlamSearch.Printer
 
 import Prelude
 
-import Data.Foldable (foldr, class Foldable, foldMap)
+import Data.Foldable (class Foldable, foldr, foldMap)
 import Data.Array (intersect, length)
 import Data.String (trim, toCharArray)
 import Text.SlamSearch.Types as SS

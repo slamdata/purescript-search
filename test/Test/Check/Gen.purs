@@ -3,11 +3,13 @@ module Test.Check.Gen
   ) where
 
 import Prelude
-import Test.StrongCheck.Gen
-import Test.StrongCheck
-import Data.Semiring.Free (free)
-import Text.SlamSearch.Types (SearchQuery())
+
 import Data.Foldable (foldl)
+import Data.Semiring.Free (free)
+
+import Test.StrongCheck.Arbitrary (class Arbitrary, arbitrary)
+import Test.StrongCheck.Gen (vectorOf, chooseInt)
+import Text.SlamSearch.Types (SearchQuery)
 
 -- helper type not to add orphan instances of Arbitrary on Free a
 newtype QueryWrapper = QueryWrapper SearchQuery
