@@ -8,10 +8,10 @@ import Data.Semiring.Free (Free, liftFree, free)
 import Data.Foldable (fold, foldl)
 import Data.Traversable (sequence)
 import Data.Either (Either)
-
-import Data.String (split, trim)
 import Data.List (List(..), reverse, fromFoldable)
 import Data.Monoid.Disj as Dj
+import Data.Newtype (alaF)
+import Data.String (split, trim, Pattern(..))
 
 import Text.SlamSearch.Types (Term, SearchQuery)
 import Text.SlamSearch.Parser.Tokens as Tk
@@ -24,19 +24,32 @@ import Text.Parsing.Parser as P
 -- | `"fo\"o b\"ar"` -→ `Cons "fo\"o b\"ar" Nil`
 splitBySpaces ∷ String → List String
 splitBySpaces input =
-  fold <<< reverse <$> splitBySpaces' (fromFoldable $ split "" input) (Cons Nil Nil) false
+  fold
+  <<< reverse
+  <$> splitBySpaces' letters (Cons Nil Nil) false
 
   where
-  splitBySpaces' ∷ List String → List (List String) → Boolean → List (List String)
+  letters ∷ List String
+  letters = fromFoldable $ split (Pattern "") input
+
+  splitBySpaces'
+    ∷ List String
+    → List (List String)
+    → Boolean
+    → List (List String)
   splitBySpaces' (Cons char cs) (Cons current accum) quoted =
-    let newWord = Cons char current
-        newAccum = Cons newWord accum
-    in case char of
-      "\"" → splitBySpaces' cs newAccum (not quoted)
-      " " → if not quoted
-             then splitBySpaces' cs (Cons Nil (Cons current accum)) false
-             else splitBySpaces' cs newAccum true
-      _ → splitBySpaces' cs newAccum quoted
+    let
+      newWord = Cons char current
+      newAccum = Cons newWord accum
+    in
+     case char of
+       "\"" →
+         splitBySpaces' cs newAccum (not quoted)
+       " " →
+         if not quoted
+           then splitBySpaces' cs (Cons Nil (Cons current accum)) false
+           else splitBySpaces' cs newAccum true
+       _ → splitBySpaces' cs newAccum quoted
   splitBySpaces' _ acc _ = acc
 
 -- | Parse string to `SearchQuery`.
@@ -64,4 +77,4 @@ check
   → (a → Term → Boolean)
   → Boolean
 check input query checkOneTerm =
-  Dj.runDisj $ liftFree (Dj.Disj <<< checkOneTerm input) query
+  alaF Dj.Disj liftFree (checkOneTerm input) query

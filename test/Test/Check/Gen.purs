@@ -16,6 +16,6 @@ newtype QueryWrapper = QueryWrapper SearchQuery
 
 instance arbQueryWrapper ∷ Arbitrary QueryWrapper where
   arbitrary = do
-    k ← chooseInt 1.0 10.0
+    k ← chooseInt 1 10
     lst ← vectorOf k $ free <$> arbitrary
     pure $ QueryWrapper $ foldl (*) one lst

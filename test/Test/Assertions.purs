@@ -12,7 +12,7 @@ import Data.Array (zip)
 import Data.Either (Either, either)
 import Data.Foldable (traverse_)
 import Data.List (List(..), singleton, fromFoldable)
-import Data.Semiring.Free (runFree)
+import Data.Newtype (unwrap)
 import Data.Tuple (Tuple(..))
 
 import Test.Effects (TEST_EFFECTS)
@@ -124,7 +124,7 @@ assertions = traverse_ traverseFn $ zip actual expected
   traverseFn ∷ Tuple (Either ParseError SS.SearchQuery) SS.Term → Eff TEST_EFFECTS Unit
   traverseFn (Tuple a e) = void do
     f ← either (const $ Exn.throwException $ Exn.error "incorrect query") pure a
-    case runFree f of
+    case unwrap f of
       Cons (Cons res Nil) Nil → do
         logShow res
         logShow e
