@@ -7,12 +7,13 @@ module Text.SlamSearch.Printer
 
 import Prelude
 
-import Data.Foldable (class Foldable, foldr, foldMap)
 import Data.Array (intersect, length)
+import Data.Foldable (class Foldable, foldr, foldMap)
+import Data.Newtype (unwrap)
 import Data.String (trim, toCharArray)
+
 import Text.SlamSearch.Types as SS
 import Text.SlamSearch.Parser.Tokens (keyChars)
-import Data.Semiring.Free (runFree)
 
 strLabel ∷ SS.Label → String
 strLabel =
@@ -60,4 +61,4 @@ strQuery =
   trim
     <<< foldr (\a b → b <> " " <> a) ""
     <<< map (foldr (\a b → b <> " " <> strTerm a) "")
-    <<< runFree
+    <<< unwrap

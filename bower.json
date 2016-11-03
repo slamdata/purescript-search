@@ -21,14 +21,14 @@
     "package.json"
   ],
   "dependencies": {
-    "purescript-foldable-traversable": "^1.0.0",
-    "purescript-monoid": "^1.0.0",
-    "purescript-parsing": "^1.0.0",
-    "purescript-semirings": "^1.0.0",
-    "purescript-strings": "^1.0.0",
-    "purescript-strongcheck": "^1.0.0"
+    "purescript-foldable-traversable": "^2.0.0",
+    "purescript-monoid": "^2.0.0",
+    "purescript-parsing": "^3.0.0",
+    "purescript-semirings": "^3.0.0",
+    "purescript-strings": "^2.0.2",
+    "purescript-strongcheck": "^2.0.0"
   },
   "devDependencies": {
-    "purescript-console": "^1.0.0"
+    "purescript-console": "^2.0.0"
   }
 }

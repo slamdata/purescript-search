@@ -8,7 +8,6 @@ module Text.SlamSearch.Types
 
 import Prelude
 
-import Data.Char as Ch
 import Data.List (List(..), fromFoldable)
 import Data.Semiring.Free (Free)
 import Data.String as Str
@@ -104,20 +103,20 @@ instance arbPredicate ∷ SCA.Arbitrary Predicate where
 -- | `"foo:#bar" -→ Tag "bar"`
 data Value = Text String | Tag String
 
-genGenName ∷ String → Gen.Gen String
+genGenName ∷ Array Char → Gen.Gen String
 genGenName strin = do
-  len ← Gen.chooseInt 1.0 5.0
+  len ← Gen.chooseInt 1 5
   go len ""
   where
   go 0 acc = pure acc
   go len acc = do
-    ch ← Str.singleton <$> Gen.elements (Ch.fromCharCode 65)
-          (fromFoldable $ Str.toCharArray validChars)
+    ch ← map Str.singleton $ Gen.allInArray validChars
     go (len - 1) (ch <> acc)
 
-validChars ∷ String
+validChars ∷ Array Char
 validChars =
-  "bcdefghijklmnopqrstuvwxyz"
+  Str.toCharArray
+  $ "abcdefghijklmnopqrstuvwxyz"
   <> "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
   <> "01234567890"
 
