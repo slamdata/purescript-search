@@ -1,8 +1,7 @@
 # purescript-search
 
-[![Latest release](http://img.shields.io/bower/v/purescript-search.svg)](https://github.com/slamdata/purescript-search/releases)
-[![Build Status](https://travis-ci.org/slamdata/purescript-search.svg?branch=master)](https://travis-ci.org/slamdata/purescript-search)
-[![Dependency Status](https://www.versioneye.com/user/projects/5791fd9451500e00422a68a1/badge.svg?style=flat)](https://www.versioneye.com/user/projects/5791fd9451500e00422a68a1)
+[![Latest release](http://img.shields.io/github/release/slamdata/purescript-search.svg)](https://github.com/slamdata/purescript-search/releases)
+[![Build status](https://travis-ci.org/slamdata/purescript-search.svg?branch=master)](https://travis-ci.org/slamdata/purescript-search)
 
 A grammar and parser for Google-style searches on unstructured or semistructured data
 
