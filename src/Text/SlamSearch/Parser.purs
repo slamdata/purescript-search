@@ -27,13 +27,13 @@ label ∷ P.Parser (List Tk.Token) S.Label
 label = do
   txt ← PC.try do
     txt' ← text
-    PT.match notCarePos Tk.Colon
+    _ ← PT.match notCarePos Tk.Colon
     pure txt'
   pure $ S.Common txt
 
 meta ∷ P.Parser (List Tk.Token) S.Label
 meta = do
-  PT.match notCarePos Tk.At
+  _ ← PT.match notCarePos Tk.At
   l ← label
   case l of
     S.Common t → pure $ S.Meta t
@@ -44,7 +44,7 @@ slabel = PC.choice [ PC.try meta, label ]
 
 tag ∷ P.Parser (List Tk.Token) S.Value
 tag = do
-  PT.match notCarePos Tk.Hash
+  _ ← PT.match notCarePos Tk.Hash
   txt ← text
   pure $ S.Tag txt
 
@@ -83,7 +83,7 @@ like = PT.match notCarePos Tk.Tilde *> (S.Like <$> text)
 range ∷ PredicateParser
 range = do
   bottom ← svalue
-  PT.match notCarePos Tk.Range
+  _ ← PT.match notCarePos Tk.Range
   up ← svalue
   pure $ S.Range bottom up
 
